@@ -3,8 +3,12 @@ import { Toaster } from "sonner";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "JS Content Calendar",
-  description: "Weekly Content Calendar with A4 PDF export",
+  title: "Just Search Management Suite",
+  description: "Centralized Internal Management Platform",
+  icons: {
+    icon: "/logo-js-old.png",
+    apple: "/logo-js.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
