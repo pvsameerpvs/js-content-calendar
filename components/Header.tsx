@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { LogOut, User, ChevronDown } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { LogOut, User, ChevronDown, ArrowLeft } from "lucide-react";
 import { logoutAction } from "@/app/actions";
 import { toast } from "sonner";
 
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -20,15 +21,27 @@ export function Header() {
 
   return (
     <header className="w-full bg-white border-b border-zinc-200 px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-50">
-      {/* Logo */}
-      <div className="relative w-32 h-10">
-         <Image 
-           src="/logo-js.png" 
-           alt="JustSearch Logo" 
-           fill 
-           className="object-contain object-left"
-           priority 
-         />
+      <div className="flex items-center gap-4">
+        {pathname !== "/home" && (
+           <button 
+             onClick={() => router.back()}
+             className="p-2 rounded-full hover:bg-zinc-100 text-zinc-500 hover:text-zinc-800 transition-colors"
+             aria-label="Go Back"
+           >
+             <ArrowLeft className="w-5 h-5" />
+           </button>
+        )}
+
+        {/* Logo */}
+        <div className="relative w-32 h-10">
+           <Image 
+             src="/logo-js.png" 
+             alt="JustSearch Logo" 
+             fill 
+             className="object-contain object-left"
+             priority 
+           />
+        </div>
       </div>
 
       {/* Profile Dropdown */}

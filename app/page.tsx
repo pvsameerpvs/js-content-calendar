@@ -51,7 +51,7 @@ export default function LoginPage() {
             />
           </div>
           <p className="text-sm text-zinc-500 font-medium tracking-wide uppercase mt-2">
-            Content Management System
+            Just Search Management Suite
           </p>
         </div>
 
