@@ -52,7 +52,7 @@ function getPlatformIcon(platformString: string) {
 
 function CellLabel({ children, isExporting }: { children: React.ReactNode, isExporting?: boolean }) {
   return (
-    <div className={`flex h-full w-full items-center justify-center rounded-[12px] bg-white text-[14px] font-bold text-zinc-800 ${isExporting ? 'shadow-none border border-zinc-200' : 'shadow-sm border border-zinc-100'}`}>
+    <div className={`flex h-full w-full items-center justify-center rounded-[12px] bg-white text-[14px] font-bold text-zinc-800 shadow-sm border border-zinc-100`}>
       {children}
     </div>
   );
@@ -130,14 +130,14 @@ export function CalendarPreview() {
       const pdf = new jsPDF({
         orientation: "landscape",
         unit: "mm",
-        format: "a4",
+        format: [338, 190], // Presentation 16:9 approx
       });
 
-      const pdfWidth = 297;
-      const pdfHeight = 210;
+      const pdfWidth = 338;
+      const pdfHeight = 190;
 
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("content-calendar.pdf");
+      pdf.save("content-calendar-presentation.pdf");
       console.log("PDF saved!");
     } catch (err) {
       console.error("PDF generation failed", err);
@@ -166,7 +166,7 @@ export function CalendarPreview() {
        )}
         
        {/* Actions Bar */}
-      <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-zinc-200 w-full max-w-[297mm]">
+      <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-zinc-200 w-full max-w-[338mm]">
         <h2 className="text-lg font-semibold text-zinc-800 flex-1">
              Weekly Planner <span className="text-zinc-400 font-normal text-sm ml-2">(Click any Column to Edit)</span>
         </h2>
@@ -182,14 +182,14 @@ export function CalendarPreview() {
       </div>
 
 
-      {/* A4 landscape: 297mm x 210mm */}
+      {/* Presentation 16:9: 338mm x 190mm */}
       <div
         ref={calendarRef}
         id="calendar-print"
         className="relative overflow-hidden shadow-2xl bg-white"
         style={{
-          width: "297mm",
-          height: "210mm",
+          width: "338mm",
+          height: "190mm",
           // The requested vibrant theme
           background: "linear-gradient(135deg, #FF4D00 0%, #FF8800 50%, #FFB700 100%)",
         }}
@@ -248,7 +248,7 @@ export function CalendarPreview() {
             className="grid gap-[2mm] flex-1"
             style={{
               gridTemplateColumns: "30mm repeat(6, minmax(0, 1fr))", // minmax(0, 1fr) ensures content doesn't force column expansion
-              gridTemplateRows: "10mm 42mm 16mm 14mm 24mm 14mm", // Tuned heights
+              gridTemplateRows: "10mm 30mm 14mm 14mm 32mm 24mm", // Increased Hashtag (6) to 24mm
             }}
           >
             {/* --- ROW 1: HEADERS --- */}
@@ -298,15 +298,15 @@ export function CalendarPreview() {
 
             {/* --- ROW 3: CONTENT TYPE --- */}
             <div className="rounded-[12px] p-[2mm]">
-              <CellLabel>Content<br/>Type</CellLabel>
+              <CellLabel>Content</CellLabel>
             </div>
              {order.map((k) => (
               <div 
                 key={k} 
-                className={`bg-white rounded-[12px] p-1 shadow-sm flex items-center justify-center px-1 transition-all ${isPdfExporting ? 'overflow-hidden' : 'cursor-pointer hover:ring-2 hover:ring-blue-500/50'}`}
+                className={`bg-white rounded-[12px] p-1 shadow-sm flex items-center justify-center px-1 transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50`}
                 onClick={() => !isPdfExporting && handleEdit(k)}
                >
-                 <div className={`text-[12px] font-bold text-center text-zinc-900 uppercase break-words ${isPdfExporting ? 'leading-normal whitespace-pre-wrap h-auto max-h-full flex items-center justify-center' : 'leading-snug line-clamp-2 tracking-tight'}`}>
+                 <div className={`text-[12px] font-bold text-center text-zinc-900 uppercase break-words leading-normal`}>
                      {days[k].contentType || "-"}
                  </div>
               </div>
@@ -320,7 +320,7 @@ export function CalendarPreview() {
              {order.map((k) => (
               <div 
                 key={k} 
-                className={`bg-white rounded-[12px] shadow-sm flex items-center justify-center transition-all ${isPdfExporting ? '' : 'cursor-pointer hover:ring-2 hover:ring-blue-500/50'}`}
+                className={`bg-white rounded-[12px] shadow-sm flex items-center justify-center transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50`}
                 onClick={() => !isPdfExporting && handleEdit(k)}
               >
                    {/* Center the icon(s) */}
@@ -338,11 +338,11 @@ export function CalendarPreview() {
              {order.map((k) => (
               <div 
                 key={k} 
-                className={`bg-white rounded-[12px] p-2.5 shadow-sm relative transition-all overflow-hidden ${isPdfExporting ? '' : 'cursor-pointer hover:ring-2 hover:ring-blue-500/50'}`}
+                className={`bg-white rounded-[12px] p-2.5 shadow-sm relative transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50`}
                 onClick={() => !isPdfExporting && handleEdit(k)}
                >
                    {days[k].caption ? (
-                        <p className={`text-[10px] text-zinc-700 font-medium whitespace-pre-wrap break-words ${isPdfExporting ? 'leading-normal h-full overflow-hidden' : 'leading-relaxed line-clamp-4'}`}>
+                        <p className={`text-[10px] text-zinc-700 font-medium whitespace-pre-wrap break-words leading-relaxed`}>
                             {days[k].caption}
                         </p>
                    ) : (
@@ -360,10 +360,10 @@ export function CalendarPreview() {
              {order.map((k) => (
               <div 
                 key={k} 
-                className={`bg-white rounded-[12px] p-1 shadow-sm flex items-center justify-center transition-all ${isPdfExporting ? 'overflow-hidden' : 'cursor-pointer hover:ring-2 hover:ring-blue-500/50'}`}
+                className={`bg-white rounded-[12px] p-1 shadow-sm flex items-center justify-center transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50`}
                 onClick={() => !isPdfExporting && handleEdit(k)}
               >
-                   <p className={`text-[10px] text-blue-600 font-semibold text-center break-words ${isPdfExporting ? 'leading-normal' : 'leading-tight line-clamp-2'}`}>
+                   <p className={`text-[10px] text-blue-600 font-semibold text-center break-words leading-normal`}>
                        {days[k].hashtag}
                    </p>
               </div>
