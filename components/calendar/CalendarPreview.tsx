@@ -7,6 +7,7 @@ import type { WeekdayKey, DayData } from "./types";
 import { Facebook, Instagram, Linkedin, Twitter, Youtube, Download, Loader2 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { exportPresentationPdf } from "@/lib/exportPdf";
 import { DayEditor } from "./DayEditor";
 
 const order: WeekdayKey[] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -112,33 +113,14 @@ export function CalendarPreview() {
 
     try {
       // 2. Wait for React to render the state change (inputs -> text)
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Increased wait time to ensure images and styles are fully stable
+      await new Promise(resolve => setTimeout(resolve, 1000));
       console.log("Waited for render, starting html2canvas...");
 
-      const element = calendarRef.current;
-      const canvas = await html2canvas(element, {
-        scale: 4, // High quality scale
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        scrollX: 0,
-        scrollY: -window.scrollY, 
-        logging: true, // Enable internal html2canvas logging
-      });
-      console.log("Canvas created, generating PDF...");
-
-      const imgData = canvas.toDataURL("image/jpeg", 1.0);
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: [338, 190], // Presentation 16:9 approx
-      });
-
-      const pdfWidth = 338;
-      const pdfHeight = 190;
-
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("content-calendar-presentation.pdf");
-      console.log("PDF saved!");
+      if (calendarRef.current) {
+         await exportPresentationPdf(calendarRef.current, "content-calendar-presentation.pdf");
+      }
+      
     } catch (err) {
       console.error("PDF generation failed", err);
       // Explicitly show error to user
@@ -207,7 +189,7 @@ export function CalendarPreview() {
              {/* Left: JustSearch Logo */}
              <div className="w-[60mm] flex items-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={brandLeftText} alt="JustSearch" className="h-[20mm] w-auto object-contain" />
+                  <img src={brandLeftText} alt="JustSearch" crossOrigin="anonymous" className="max-h-[18mm] w-auto object-contain" />
              </div>
 
              {/* Center: Title & Editable Client Name */}
@@ -239,16 +221,12 @@ export function CalendarPreview() {
 
           {/* Grid Container */}
           {/* We need strictly equal height rows to fit exactly 210mm height minus padding/header */}
-          {/* Remaining height approx: 210 - 20 (padding) - 24 (header) - 4 (margin) = 162mm */}
-          {/* We have 6 rows. 162 / 6 = ~27mm per row. 
-              Actually rows need different heights. 
-              Let's use Grid with explicit sizing to match the image ratio better.
-          */}
+            {/* Remaining height approx: 210 - 20 (padding) - 24 (header) - 4 (margin) = 162mm */ }
             <div
-            className="grid gap-[2mm] flex-1"
+            className="grid gap-[2mm] h-[142mm]" // EXPLICIT HEIGHT to prevent flex issues/jumping
             style={{
               gridTemplateColumns: "30mm repeat(6, minmax(0, 1fr))", // minmax(0, 1fr) ensures content doesn't force column expansion
-              gridTemplateRows: "10mm 30mm 14mm 14mm 32mm 24mm", // Increased Hashtag (6) to 24mm
+              gridTemplateRows: "10mm 30mm 16mm 16mm 34mm 26mm", // Maximized heights to use full page space (Total ~132mm + gaps)
             }}
           >
             {/* --- ROW 1: HEADERS --- */}
@@ -282,7 +260,7 @@ export function CalendarPreview() {
                     <div key={k} className="bg-white p-1 rounded-[12px] shadow-sm cursor-pointer hover:ring-2 hover:ring-blue-500/50 transition-all" onClick={() => handleEdit(k)}>
                         <div className="w-full h-full relative rounded-[8px] overflow-hidden bg-zinc-50 border border-zinc-100 group">
                              {mood ? (
-                                <img src={mood} alt="Mood" className="absolute inset-0 w-full h-full object-cover" />
+                                <img src={mood} alt="Mood" crossOrigin="anonymous" className="absolute inset-0 w-full h-full object-cover" />
                              ) : (
                                 <div className="flex flex-col items-center justify-center h-full text-zinc-300">
                                    <div className="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center mb-1">
@@ -303,10 +281,10 @@ export function CalendarPreview() {
              {order.map((k) => (
               <div 
                 key={k} 
-                className={`bg-white rounded-[12px] p-1 shadow-sm flex items-center justify-center px-1 transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50`}
+                className={`bg-white rounded-[12px] px-1 py-0.5 shadow-sm flex items-center justify-center transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50`}
                 onClick={() => !isPdfExporting && handleEdit(k)}
                >
-                 <div className={`text-[12px] font-bold text-center text-zinc-900 uppercase break-words leading-normal`}>
+                 <div className={`text-[11px] font-bold text-center text-zinc-900 uppercase break-words leading-tight`}>
                      {days[k].contentType || "-"}
                  </div>
               </div>
@@ -338,11 +316,11 @@ export function CalendarPreview() {
              {order.map((k) => (
               <div 
                 key={k} 
-                className={`bg-white rounded-[12px] p-2.5 shadow-sm relative transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50`}
+                className={`bg-white rounded-[12px] p-2.5 shadow-sm relative transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50 overflow-hidden`}
                 onClick={() => !isPdfExporting && handleEdit(k)}
                >
                    {days[k].caption ? (
-                        <p className={`text-[10px] text-zinc-700 font-medium whitespace-pre-wrap break-words leading-relaxed`}>
+                        <p className={`text-[10px] text-zinc-700 font-medium whitespace-pre-wrap break-words leading-normal line-clamp-7`}>
                             {days[k].caption}
                         </p>
                    ) : (
@@ -360,10 +338,10 @@ export function CalendarPreview() {
              {order.map((k) => (
               <div 
                 key={k} 
-                className={`bg-white rounded-[12px] p-1 shadow-sm flex items-center justify-center transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50`}
+                className={`bg-white rounded-[12px] px-1 py-0.5 shadow-sm flex items-center justify-center transition-all cursor-pointer hover:ring-2 hover:ring-blue-500/50`}
                 onClick={() => !isPdfExporting && handleEdit(k)}
               >
-                   <p className={`text-[10px] text-blue-600 font-semibold text-center break-words leading-normal`}>
+                   <p className={`text-[10px] text-blue-600 font-semibold text-center break-words leading-tight`}>
                        {days[k].hashtag}
                    </p>
               </div>

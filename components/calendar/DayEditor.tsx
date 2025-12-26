@@ -46,7 +46,15 @@ export function DayEditor({ isOpen, onClose, dayKey, dayData, onSave }: DayEdito
   if (!isOpen) return null;
 
   const handleChange = (field: keyof DayData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Character limit check for caption
+    if (field === "caption") {
+      // 167 characters including spaces
+      if (value.length <= 167) {
+         setFormData((prev) => ({ ...prev, [field]: value }));
+      }
+    } else {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +69,13 @@ export function DayEditor({ isOpen, onClose, dayKey, dayData, onSave }: DayEdito
   };
 
   const handleSave = () => {
+    // Validation: Maximum 5 hashtags
+    const currentHashtags = formData.hashtag?.trim().split(/\s+/).filter(Boolean) || [];
+    if (currentHashtags.length > 5) {
+        alert(`You can only have a maximum of 5 hashtags. Current: ${currentHashtags.length}`);
+        return;
+    }
+
     onSave(dayKey, formData);
     onClose();
   };
@@ -208,6 +223,13 @@ export function DayEditor({ isOpen, onClose, dayKey, dayData, onSave }: DayEdito
               rows={4}
               className="w-full p-3 rounded-lg border border-zinc-200 bg-white text-sm text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-shadow resize-none leading-relaxed"
             />
+            <div className="mt-1 flex justify-end">
+                <span className={`text-xs font-medium ${
+                    (formData.caption?.length || 0) >= 167 ? "text-red-500" : "text-zinc-400"
+                }`}>
+                    {formData.caption?.length || 0}/167 Characters
+                </span>
+            </div>
           </div>
 
            {/* Hashtags */}
@@ -220,7 +242,14 @@ export function DayEditor({ isOpen, onClose, dayKey, dayData, onSave }: DayEdito
               rows={2}
               className="w-full p-3 rounded-lg border border-zinc-200 bg-white text-sm text-blue-600 font-medium placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-shadow resize-none"
             />
-          </div>
+            <div className="mt-1 flex justify-end">
+                <span className={`text-xs font-medium ${
+                    (formData.hashtag?.trim().split(/\s+/).filter(Boolean).length || 0) > 5 ? "text-red-500" : "text-zinc-400"
+                }`}>
+                    {formData.hashtag?.trim().split(/\s+/).filter(Boolean).length || 0}/5 Max Hashtags
+                </span>
+            </div>
+           </div>
 
         </div>
 

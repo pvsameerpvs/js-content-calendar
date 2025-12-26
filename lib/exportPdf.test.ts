@@ -31,7 +31,7 @@ vi.mock("jspdf", () => {
   };
 });
 
-import { exportA4LandscapePdf } from "./exportPdf";
+import { exportA4LandscapePdf, exportPresentationPdf } from "./exportPdf";
 
 describe("exportA4LandscapePdf", () => {
   it("creates a PDF and calls save()", async () => {
@@ -43,5 +43,20 @@ describe("exportA4LandscapePdf", () => {
     expect(pdf).toBeTruthy();
     expect(addImageMock).toHaveBeenCalledTimes(1);
     expect(saveMock).toHaveBeenCalledWith("test.pdf");
+  });
+});
+
+describe("exportPresentationPdf", () => {
+  it("creates a Presentation PDF and calls save()", async () => {
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+
+    const pdf = await exportPresentationPdf(el, "presentation.pdf");
+
+    expect(pdf).toBeTruthy();
+    expect(addImageMock).toHaveBeenCalledTimes(1); 
+    // You could also check if the format passed to jsPDF match [338, 190] 
+    // but we are mocking the constructor return, so we check side effects.
+    expect(saveMock).toHaveBeenCalledWith("presentation.pdf");
   });
 });
