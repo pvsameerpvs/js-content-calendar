@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Mail, Globe, MapPin, Phone } from "lucide-react";
 import { CONTENT_PRESETS } from "./contentPresets";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow: string, remaining: string) => void }) {
     const contentRef = useRef<HTMLDivElement>(null);
@@ -107,46 +108,116 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
         return () => clearTimeout(timer);
     }, [data?.initialHtml]); // Run when data changes (initial load of new page)
 
+    const [formats, setFormats] = useState({
+        bold: false,
+        italic: false,
+        underline: false,
+        insertUnorderedList: false,
+        insertOrderedList: false
+    });
+
+    const checkFormats = () => {
+        setFormats({
+            bold: document.queryCommandState('bold'),
+            italic: document.queryCommandState('italic'),
+            underline: document.queryCommandState('underline'),
+            insertUnorderedList: document.queryCommandState('insertUnorderedList'),
+            insertOrderedList: document.queryCommandState('insertOrderedList')
+        });
+    };
+
+    // ... existing performOverflowCheck code ... 
+
+    // Helper to run format command and check state
+    const toggleFormat = (command: string) => {
+        document.execCommand(command);
+        checkFormats();
+        if (contentRef.current) contentRef.current.focus();
+    };
+
+    // ... existing useEffect ...
+
     const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-        // Debounce could be good, but for now direct check is responsive
         performOverflowCheck();
     };
 
-    // Manual DOM Sync to prevent cursor jumps
-    useEffect(() => {
-        if (contentRef.current && data.initialHtml && contentRef.current.innerHTML !== data.initialHtml) {
-            contentRef.current.innerHTML = data.initialHtml;
-        }
-    }, [data?.initialHtml]);
+    const handleKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        checkFormats();
+        if (e.key === 'Enter') performOverflowCheck();
+    };
+
+    // ... existing manual sync useEffect ...
 
     return (
         <div className="w-[210mm] h-[297mm] bg-white relative shadow-sm overflow-hidden flex flex-col justify-between">
             {/* ... Header ... */}
-            <div className="absolute top-0 left-0 w-full">
-                <div className="h-2 bg-[#FF4B1F] w-full"></div>
-                <div className="bg-white px-8 py-4 flex items-center justify-between border-b border-zinc-100">
-                    <div className="w-48 relative h-12">
-                        <Image src="/logo-js.png" alt="Just Search" fill className="object-contain object-left" />
-                    </div>
-                    <div className="flex flex-col items-end gap-1 text-xs text-zinc-600">
-                         <div className="flex items-center gap-2">
-                            <Mail className="w-3 h-3 text-[#FF4B1F]" /> info@justsearch.ae
-                         </div>
-                         <div className="flex items-center gap-2">
-                            <Globe className="w-3 h-3 text-[#FF4B1F]" /> www.justsearch.ae
-                         </div>
-                    </div>
-                </div>
-            </div>
-
-
-            {/* Content Area */}
+            {/* ... */}
+            
             <div className="flex-1 px-12 py-32 relative group/page overflow-hidden">
                 
                 {/* Formatting Toolbar (Visible on Hover/Focus) */}
-                <div className="absolute top-24 left-12 right-12 flex items-center justify-between border-b border-zinc-200 pb-2 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity z-50">
+                <div className="absolute top-24 left-12 right-12 flex items-center gap-2 border-b border-zinc-200 pb-2 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity z-50 bg-white/90 backdrop-blur-sm">
+                    {/* Text Formatting */}
+                    <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
+                        <button 
+                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('bold'); }}
+                            className={cn(
+                                "p-1.5 rounded transition-colors",
+                                formats.bold ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
+                            )}
+                            title="Bold"
+                        >
+                            <b className="font-serif">B</b>
+                        </button>
+                        <button 
+                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('italic'); }}
+                            className={cn(
+                                "p-1.5 rounded transition-colors",
+                                formats.italic ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
+                            )}
+                            title="Italic"
+                        >
+                            <i className="font-serif">I</i>
+                        </button>
+                        <button 
+                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('underline'); }}
+                            className={cn(
+                                "p-1.5 rounded transition-colors",
+                                formats.underline ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
+                            )}
+                            title="Underline"
+                        >
+                            <u className="font-serif">U</u>
+                        </button>
+                    </div>
+
+                    {/* Lists */}
+                    <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
+                        <button 
+                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('insertUnorderedList'); }}
+                            className={cn(
+                                "p-1.5 rounded transition-colors flex items-center gap-1",
+                                formats.insertUnorderedList ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
+                            )}
+                            title="Bullet List"
+                        >
+                            <span className="text-[10px]">•</span> List
+                        </button>
+                        <button 
+                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('insertOrderedList'); }}
+                            className={cn(
+                                "p-1.5 rounded transition-colors flex items-center gap-1",
+                                formats.insertOrderedList ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
+                            )}
+                            title="Numbered List"
+                        >
+                            <span className="text-[10px]">1.</span> List
+                        </button>
+                    </div>
+                    
+                    {/* Presets */}
                     <select 
-                        className="bg-zinc-50 border border-zinc-200 text-xs rounded px-2 py-1 outline-none focus:border-orange-500 text-zinc-600"
+                        className="bg-zinc-50 border border-zinc-200 text-xs rounded px-2 py-1.5 outline-none focus:border-orange-500 text-zinc-600 min-w-[120px]"
                         onChange={(e) => {
                             const preset = CONTENT_PRESETS[e.target.value];
                             // Using a more robust selector than random ID
@@ -169,16 +240,17 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
                             <option key={key} value={key}>{key}</option>
                         ))}
                     </select>
-                    <span className="text-[10px] text-zinc-400 uppercase font-medium">Editable Content</span>
                 </div>
 
                 <div 
                     ref={contentRef}
                     contentEditable
-                    className="w-full h-full outline-none text-zinc-800 leading-relaxed space-y-4 hover:bg-zinc-50 focus:bg-orange-50/10 p-4 rounded overflow-hidden"
+                    className="w-full h-full outline-none text-zinc-800 leading-relaxed space-y-4 hover:bg-zinc-50 focus:bg-orange-50/10 p-4 rounded overflow-hidden [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onBlur={handleInput}
+                    onKeyUp={handleKeyUp} 
+                    onMouseUp={checkFormats}
                     // Initial render only
                     dangerouslySetInnerHTML={!contentRef.current ? { __html: data?.initialHtml || `
                         <h2 class="text-xl font-bold mb-4">Scope of Work</h2>
