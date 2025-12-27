@@ -10,10 +10,15 @@ import { TablePage } from "./TablePage";
 import { LastPage } from "./LastPage";
 import { exportProposalPdf } from "@/lib/proposalExport";
 
-// Page Wrapper 
-const PageWrapper = ({ children, onDelete }: { children: React.ReactNode, onDelete: () => void }) => (
+const PageWrapper = ({ children, onDelete, pageNumber }: { children: React.ReactNode, onDelete: () => void, pageNumber: number }) => (
   <div className="relative group shrink-0 transition-transform hover:scale-[1.005] proposal-page-wrapper">
     {children}
+    
+    {/* Page Number Indicator (UI Only) */}
+    <div className="absolute top-4 left-[-60px] w-12 h-12 flex items-center justify-center bg-zinc-900 text-white font-bold rounded-full shadow-sm text-sm opacity-50 group-hover:opacity-100 group-hover:left-[-20px] transition-all z-40 cursor-default">
+        {pageNumber}
+    </div>
+
     {/* Delete Action */}
     <button 
         onClick={onDelete}
@@ -58,15 +63,32 @@ export function ProposalEditor() {
         content: { ...updatedPages[pageIndex].content, initialHtml: remainingContent }
     };
 
-    const newPage: ProposalPageData = {
-        id: crypto.randomUUID(),
-        type: "CONTENT",
-        content: { initialHtml: overflowContent } 
-    };
+    // Check if next page exists and is a CONTENT page
+    const nextPage = updatedPages[pageIndex + 1];
+    
+    if (nextPage && nextPage.type === "CONTENT") {
+        // Merge overflow into the next page
+        updatedPages[pageIndex + 1] = {
+            ...nextPage,
+            content: {
+                ...nextPage.content,
+                // Ensure we don't define undefined
+                initialHtml: overflowContent + (nextPage.content.initialHtml || "")
+            }
+        };
+        toast.success("Content moved to next page");
+    } else {
+        // Insert new page if next doesn't exist or isn't content
+        const newPage: ProposalPageData = {
+            id: crypto.randomUUID(),
+            type: "CONTENT",
+            content: { initialHtml: overflowContent } 
+        };
+        updatedPages.splice(pageIndex + 1, 0, newPage);
+        toast.success("New page created");
+    }
 
-    updatedPages.splice(pageIndex + 1, 0, newPage);
     setPages(updatedPages);
-    toast.success("Pagination updated");
   };
 
   return (
@@ -122,8 +144,8 @@ export function ProposalEditor() {
                 </div>
             ) : (
                 <div className="flex flex-col gap-8 items-center pb-20">
-                    {pages.map((page) => (
-                        <PageWrapper key={page.id} onDelete={() => removePage(page.id)}>
+                    {pages.map((page, index) => (
+                        <PageWrapper key={page.id} onDelete={() => removePage(page.id)} pageNumber={index + 1}>
                             {page.type === "COVER" && <CoverPage data={page.content} isActive={true} />}
                             {page.type === "CONTENT" && (
                                 <ContentPage 

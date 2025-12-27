@@ -31,12 +31,57 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
              // Iterate backwards
              for (let i = nodes.length - 1; i >= 0; i--) {
                  const node = nodes[i];
-                 target.removeChild(node);
+                 
+                 // SPECIAL HANDLING: If it's a list, try to split the items first
+                 if (node.nodeType === Node.ELEMENT_NODE && ['UL', 'OL'].includes(node.nodeName)) {
+                     const list = node as HTMLElement;
+                     const listItems = Array.from(list.children);
+                     let listRemovedHtml = "";
+                     let listFits = false;
+
+                     // Remove LIs from the bottom up
+                     for (let j = listItems.length - 1; j >= 0; j--) {
+                         const li = listItems[j];
+                         list.removeChild(li);
+                         listRemovedHtml = li.outerHTML + listRemovedHtml;
+                         
+                         if (target.scrollHeight <= target.clientHeight) {
+                             listFits = true;
+                             break;
+                         }
+                     }
+
+                     if (listFits) {
+                         // Loop ends, we found a split point INSIDE the list.
+                         // Add the removed LIs (wrapped in the same list tag) to removedHtml
+                         // We basically clone the wrapper structure
+                         const cloneWrapper = list.cloneNode(false) as HTMLElement; // shallow clone (just tag + attrs)
+                         removedHtml = cloneWrapper.outerHTML.replace('><', `>${listRemovedHtml}<`) + removedHtml; 
+                         // Note: outerHTML of empty clone is <ul></ul>, we insert content. 
+                         // Check strictly: <ul></ul> -> <ul>...</ul>. 
+                         // Safer way:
+                         removedHtml = `<${list.tagName.toLowerCase()} class="${list.className}" style="${list.style.cssText}">${listRemovedHtml}</${list.tagName.toLowerCase()}>` + removedHtml;
+                         
+                         break; // We solved the overflow!
+                     } else {
+                         // Even extracting all items didn't maximize space efficiently? 
+                         // Or we removed all items and the empty UL still exists.
+                         // Remove the empty UL and continue to previous sibling
+                         target.removeChild(list); // Removing the node itself
+                         // Logic below will add it to removedHtml
+                     }
+                 } else {
+                    target.removeChild(node);
+                 }
                  
                  // Append to removedHtml (preserving order)
-                 // contentEditable creates unpredictable nodes, handle both Element and Text
                  if (node.nodeType === Node.ELEMENT_NODE) {
-                    removedHtml = (node as Element).outerHTML + removedHtml;
+                    // Logic handles if we removed it above. 
+                    // If we did the List Split and succeeded, we broke; logic never reaches here for that node.
+                    // If we failed list split (removed all LIs), we removed `node` (the UL) above.
+                    // We need to verify if node is still attached? No, we call removeChild.
+                    // Re-adding logic to be cleaner:
+                     removedHtml = (node as Element).outerHTML + removedHtml;
                  } else if (node.nodeType === Node.TEXT_NODE) {
                     removedHtml = (node.textContent || "") + removedHtml;
                  }
@@ -66,6 +111,13 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
         // Debounce could be good, but for now direct check is responsive
         performOverflowCheck();
     };
+
+    // Manual DOM Sync to prevent cursor jumps
+    useEffect(() => {
+        if (contentRef.current && data.initialHtml && contentRef.current.innerHTML !== data.initialHtml) {
+            contentRef.current.innerHTML = data.initialHtml;
+        }
+    }, [data?.initialHtml]);
 
     return (
         <div className="w-[210mm] h-[297mm] bg-white relative shadow-sm overflow-hidden flex flex-col justify-between">
@@ -127,11 +179,12 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onBlur={handleInput}
-                    dangerouslySetInnerHTML={{ __html: data?.initialHtml || `
+                    // Initial render only
+                    dangerouslySetInnerHTML={!contentRef.current ? { __html: data?.initialHtml || `
                         <h2 class="text-xl font-bold mb-4">Scope of Work</h2>
                         <p>The purpose of this project is to...</p>
                         <p>Select a preset from the toolbar above to replace this content.</p>
-                    `}}
+                    ` } : undefined}
                 />
             </div>
 
