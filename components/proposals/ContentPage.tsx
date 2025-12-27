@@ -174,7 +174,33 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
     return (
         <div className="w-[210mm] h-[297mm] bg-white relative shadow-sm overflow-hidden flex flex-col justify-between">
             
-            <div className="flex-1 px-12 py-16 relative group/page overflow-hidden">
+            {/* Header */}
+            <div className="absolute top-0 left-0 w-full z-20 bg-white">
+                 <div className="flex h-10 w-full">
+                      <div className="bg-[#FF4B1F] text-white px-12 flex items-center font-bold tracking-wider text-sm w-fit pr-16" style={{ clipPath: "polygon(0 0, 100% 0, 90% 100%, 0% 100%)" }}>
+                          DIGITAL MARKETING AGENCY
+                      </div>
+                      <div className="bg-zinc-900 w-16 h-full -ml-8" style={{ clipPath: "polygon(40% 0, 100% 0, 60% 100%, 0% 100%)" }}></div>
+                 </div>
+
+                 <div className="px-12 py-4 flex items-center justify-between">
+                     <div className="relative w-48 h-12">
+                         <Image src="/logo-js.png" alt="Just Search" fill className="object-contain object-left" />
+                     </div>
+                     <div className="flex flex-col gap-2 text-xs text-zinc-600 items-end">
+                         <div className="flex items-center gap-2">
+                             <div className="w-5 h-5 rounded-full bg-[#FF4B1F] text-white flex items-center justify-center"><Mail className="w-3 h-3" /></div>
+                             <span>info@justsearch.ae</span>
+                         </div>
+                         <div className="flex items-center gap-2">
+                             <div className="w-5 h-5 rounded-full bg-[#FF4B1F] text-white flex items-center justify-center"><Globe className="w-3 h-3" /></div>
+                             <span>www.justsearch.ae</span>
+                         </div>
+                     </div>
+                 </div>
+            </div>
+
+            <div className="flex-1 px-12 pt-[45mm] pb-16 relative group/page overflow-hidden">
                 <div 
                     ref={contentRef}
                     contentEditable
