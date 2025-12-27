@@ -8,14 +8,16 @@ import { cn } from "@/lib/utils";
 
 // ... imports
 
-export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdate }: { 
+export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdate, hasHeader }: { 
     data: any, 
     onSplit?: (overflow: string, remaining: string) => void,
     autoFocus?: boolean,
     onFocusConsumed?: () => void,
-    onUpdate?: (html: string) => void
+    onUpdate?: (html: string) => void,
+    hasHeader?: boolean
 }) {
     const contentRef = useRef<HTMLDivElement>(null);
+    const updateTimeoutRef = useRef<NodeJS.Timeout>();
     
     useEffect(() => {
         if (autoFocus && contentRef.current) {
@@ -160,9 +162,17 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
 
     const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
         performOverflowCheck();
+
+        // Debounced update to keep parent state fresh (prevents data loss on remote merges)
+        if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
+        const html = e.currentTarget.innerHTML;
+        updateTimeoutRef.current = setTimeout(() => {
+            onUpdate?.(html);
+        }, 1000);
     };
 
     const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+        if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
         performOverflowCheck();
         onUpdate?.(e.currentTarget.innerHTML);
     };
@@ -175,7 +185,8 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
         <div className="w-[210mm] h-[297mm] bg-white relative shadow-sm overflow-hidden flex flex-col justify-between">
             
             {/* Header */}
-            <div className="absolute top-0 left-0 w-full z-20 bg-white">
+            {hasHeader && (
+            <div className="w-full z-20 bg-white shrink-0">
                  <div className="flex h-10 w-full">
                       <div className="bg-[#FF4B1F] text-white px-12 flex items-center font-bold tracking-wider text-sm w-fit pr-16" style={{ clipPath: "polygon(0 0, 100% 0, 90% 100%, 0% 100%)" }}>
                           DIGITAL MARKETING AGENCY
@@ -199,8 +210,12 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
                      </div>
                  </div>
             </div>
+            )}
 
-            <div className="flex-1 px-12 pt-[45mm] pb-16 relative group/page overflow-hidden">
+            <div className={cn(
+                "flex-1 px-12 relative group/page overflow-hidden",
+                hasHeader ? "pt-8 pb-16" : "py-16"
+            )}>
                 <div 
                     ref={contentRef}
                     contentEditable

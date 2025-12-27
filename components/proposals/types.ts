@@ -4,6 +4,7 @@ export interface ProposalPageData {
   id: string;
   type: PageType;
   content: any; // Flexible content structure based on type
+  isContinuation?: boolean;
 }
 
 export const A4_WIDTH_MM = 210;

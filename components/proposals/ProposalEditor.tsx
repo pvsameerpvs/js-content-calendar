@@ -84,7 +84,8 @@ export function ProposalEditor() {
         const newPage: ProposalPageData = {
             id: crypto.randomUUID(),
             type: "CONTENT",
-            content: { initialHtml: overflowContent } 
+            content: { initialHtml: overflowContent },
+            isContinuation: true
         };
         updatedPages.splice(pageIndex + 1, 0, newPage);
         toast.success("New page created");
@@ -167,6 +168,7 @@ export function ProposalEditor() {
                                     autoFocus={page.id === focusTarget}
                                     onFocusConsumed={() => setFocusTarget(null)}
                                     onUpdate={(html) => updatePageContent(page.id, html)}
+                                    hasHeader={!page.isContinuation}
                                 />
                             )}
                             {page.type === "TABLE" && <TablePage data={page.content} />}
