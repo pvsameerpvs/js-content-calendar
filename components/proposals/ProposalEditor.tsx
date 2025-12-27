@@ -47,20 +47,26 @@ export function ProposalEditor() {
     toast.info("Page removed");
   };
 
-  const splitPage = (sourcePageId: string, remainingContent: string) => {
+  const splitPage = (sourcePageId: string, overflowContent: string, remainingContent: string) => {
     const pageIndex = pages.findIndex(p => p.id === sourcePageId);
     if (pageIndex === -1) return;
+
+    // Update current page with remaining content to prevent loop/restoration
+    const updatedPages = [...pages];
+    updatedPages[pageIndex] = {
+        ...updatedPages[pageIndex],
+        content: { ...updatedPages[pageIndex].content, initialHtml: remainingContent }
+    };
 
     const newPage: ProposalPageData = {
         id: crypto.randomUUID(),
         type: "CONTENT",
-        content: { initialHtml: remainingContent } // Pass overflow content
+        content: { initialHtml: overflowContent } 
     };
 
-    const newPages = [...pages];
-    newPages.splice(pageIndex + 1, 0, newPage);
-    setPages(newPages);
-    toast.success("New page created for overflow content");
+    updatedPages.splice(pageIndex + 1, 0, newPage);
+    setPages(updatedPages);
+    toast.success("Pagination updated");
   };
 
   return (
@@ -122,7 +128,7 @@ export function ProposalEditor() {
                             {page.type === "CONTENT" && (
                                 <ContentPage 
                                     data={page.content} 
-                                    onSplit={(content) => splitPage(page.id, content)}
+                                    onSplit={(overflow, remaining) => splitPage(page.id, overflow, remaining)}
                                 />
                             )}
                             {page.type === "TABLE" && <TablePage data={page.content} />}

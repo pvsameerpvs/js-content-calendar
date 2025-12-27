@@ -6,7 +6,7 @@ import { Mail, Globe, MapPin, Phone } from "lucide-react";
 import { CONTENT_PRESETS } from "./contentPresets";
 import { toast } from "sonner";
 
-export function ContentPage({ data, onSplit }: { data: any, onSplit?: (content: string) => void }) {
+export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow: string, remaining: string) => void }) {
     const contentRef = useRef<HTMLDivElement>(null);
     
     // Check for overflow logic
@@ -24,28 +24,33 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (content: 
              console.log("Overflow detected, splitting...");
              toast.info("Auto-paginating content...");
              
-             const children = Array.from(target.children);
+             // Use childNodes to catch text nodes too (not just Elements)
+             const nodes = Array.from(target.childNodes);
              let removedHtml = "";
-             let removedCount = 0;
              
              // Iterate backwards
-             for (let i = children.length - 1; i >= 0; i--) {
-                 const child = children[i];
-                 target.removeChild(child);
-                 removedHtml = child.outerHTML + removedHtml; 
-                 removedCount++;
+             for (let i = nodes.length - 1; i >= 0; i--) {
+                 const node = nodes[i];
+                 target.removeChild(node);
                  
-                 // If we removed everything and it still doesn't fit (huge single element),
-                 // we might have an issue. But typically we stop when it fits.
+                 // Append to removedHtml (preserving order)
+                 // contentEditable creates unpredictable nodes, handle both Element and Text
+                 if (node.nodeType === Node.ELEMENT_NODE) {
+                    removedHtml = (node as Element).outerHTML + removedHtml;
+                 } else if (node.nodeType === Node.TEXT_NODE) {
+                    removedHtml = (node.textContent || "") + removedHtml;
+                 }
+                 
+                 // Check if it fits now
                  if (target.scrollHeight <= target.clientHeight) {
                      break;
                  }
              }
              
              if (removedHtml) {
-                 // If we stripped everything, maybe keep at least one item? 
-                 // No, move it all to the next page is better behavior for "flow".
-                 onSplit(removedHtml);
+                 // Pass both the overflow content (for new page) AND the remaining content (for current page)
+                 // This ensures the parent state updates the current page so React doesn't restore the removed content.
+                 onSplit(removedHtml, target.innerHTML);
              }
         }
     };
@@ -84,7 +89,7 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (content: 
 
 
             {/* Content Area */}
-            <div className="flex-1 px-12 py-32 relative group/page">
+            <div className="flex-1 px-12 py-32 relative group/page overflow-hidden">
                 
                 {/* Formatting Toolbar (Visible on Hover/Focus) */}
                 <div className="absolute top-24 left-12 right-12 flex items-center justify-between border-b border-zinc-200 pb-2 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity z-50">
@@ -118,7 +123,7 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (content: 
                 <div 
                     ref={contentRef}
                     contentEditable
-                    className="w-full h-full outline-none text-zinc-800 leading-relaxed space-y-4 hover:bg-zinc-50 focus:bg-orange-50/10 p-4 rounded"
+                    className="w-full h-full outline-none text-zinc-800 leading-relaxed space-y-4 hover:bg-zinc-50 focus:bg-orange-50/10 p-4 rounded overflow-hidden"
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onBlur={handleInput}
