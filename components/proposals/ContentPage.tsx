@@ -3,14 +3,57 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Mail, Globe, MapPin, Phone } from "lucide-react";
-import { CONTENT_PRESETS } from "./contentPresets";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow: string, remaining: string) => void }) {
+// ... imports
+
+export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdate }: { 
+    data: any, 
+    onSplit?: (overflow: string, remaining: string) => void,
+    autoFocus?: boolean,
+    onFocusConsumed?: () => void,
+    onUpdate?: (html: string) => void
+}) {
     const contentRef = useRef<HTMLDivElement>(null);
     
+    useEffect(() => {
+        if (autoFocus && contentRef.current) {
+            // Focus and move caret to start (since it's overflow from previous page)
+            // Or start? User was typing at bottom of prev page, text moved to top of this page.
+            // Caret should be at... keeping it logical: Start of the moved content.
+            contentRef.current.focus();
+            
+            // Move cursor to end of text? Or start? 
+            // If they were typing in the middle of a sentence that split, they want to be at the split point (start of new page).
+            // Default focus usually goes to start? contentEditable behavior varies.
+            // Let's force start.
+             const range = document.createRange();
+             const sel = window.getSelection();
+             if (sel) {
+                 // Attempt to find the first text node?
+                 // contentRef.current.firstChild could be <p>...</p>
+                 // Let's just focus for now, browser default is reasonable (usually start).
+                 // Actually, placing at start is safer for "continue typing".
+                 range.setStart(contentRef.current, 0);
+                 range.collapse(true);
+                 sel.removeAllRanges();
+                 sel.addRange(range);
+             }
+
+            onFocusConsumed?.();
+        }
+    }, [autoFocus]);
+
+    // Sync content from parent state if it changes (e.g. pushed content from previous page)
+    useEffect(() => {
+        if (contentRef.current && data?.initialHtml && contentRef.current.innerHTML !== data.initialHtml) {
+             contentRef.current.innerHTML = data.initialHtml;
+        }
+    }, [data?.initialHtml]);
+
     // Check for overflow logic
+// ... rest of file
     const performOverflowCheck = () => {
         const target = contentRef.current;
         if (!target || !onSplit) return;
@@ -29,11 +72,18 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
              const nodes = Array.from(target.childNodes);
              let removedHtml = "";
              
+              
+             const originalHtml = target.innerHTML;
              // Iterate backwards
              for (let i = nodes.length - 1; i >= 0; i--) {
                  const node = nodes[i];
                  
-                 // SPECIAL HANDLING: If it's a list, try to split the items first
+                 // ... (existing list logic logic doesn't need change here, just the loop structure around it)
+                 // Wait, I can't easily replace just the loop wrapper without content.
+                 // I will use `replace_file_content` carefully.
+                 // Actually, I'll just check at the end.
+                 
+                 // ... list handling ...
                  if (node.nodeType === Node.ELEMENT_NODE && ['UL', 'OL'].includes(node.nodeName)) {
                      const list = node as HTMLElement;
                      const listItems = Array.from(list.children);
@@ -46,7 +96,7 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
                          list.removeChild(li);
                          listRemovedHtml = li.outerHTML + listRemovedHtml;
                          
-                         if (target.scrollHeight <= target.clientHeight) {
+                         if (target.scrollHeight <= target.clientHeight + 5) {
                              listFits = true;
                              break;
                          }
@@ -57,43 +107,43 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
                          // Add the removed LIs (wrapped in the same list tag) to removedHtml
                          // We basically clone the wrapper structure
                          const cloneWrapper = list.cloneNode(false) as HTMLElement; // shallow clone (just tag + attrs)
-                         removedHtml = cloneWrapper.outerHTML.replace('><', `>${listRemovedHtml}<`) + removedHtml; 
-                         // Note: outerHTML of empty clone is <ul></ul>, we insert content. 
-                         // Check strictly: <ul></ul> -> <ul>...</ul>. 
-                         // Safer way:
-                         removedHtml = `<${list.tagName.toLowerCase()} class="${list.className}" style="${list.style.cssText}">${listRemovedHtml}</${list.tagName.toLowerCase()}>` + removedHtml;
-                         
+                         if (listRemovedHtml) {
+                              const tagName = list.tagName.toLowerCase();
+                              removedHtml = `<${tagName} class="${list.className}" style="${list.style.cssText}">${listRemovedHtml}</${tagName}>` + removedHtml;
+                         }
                          break; // We solved the overflow!
                      } else {
                          // Even extracting all items didn't maximize space efficiently? 
                          // Or we removed all items and the empty UL still exists.
                          // Remove the empty UL and continue to previous sibling
-                         target.removeChild(list); // Removing the node itself
-                         // Logic below will add it to removedHtml
+                         if (list.parentNode) target.removeChild(list); 
                      }
                  } else {
-                    target.removeChild(node);
+                    if (node.parentNode) target.removeChild(node);
                  }
                  
                  // Append to removedHtml (preserving order)
                  if (node.nodeType === Node.ELEMENT_NODE) {
-                    // Logic handles if we removed it above. 
-                    // If we did the List Split and succeeded, we broke; logic never reaches here for that node.
-                    // If we failed list split (removed all LIs), we removed `node` (the UL) above.
-                    // We need to verify if node is still attached? No, we call removeChild.
-                    // Re-adding logic to be cleaner:
-                     removedHtml = (node as Element).outerHTML + removedHtml;
+                    removedHtml = (node as Element).outerHTML + removedHtml;
                  } else if (node.nodeType === Node.TEXT_NODE) {
                     removedHtml = (node.textContent || "") + removedHtml;
                  }
                  
                  // Check if it fits now
-                 if (target.scrollHeight <= target.clientHeight) {
+                 if (target.scrollHeight <= target.clientHeight + 5) {
                      break;
                  }
              }
              
              if (removedHtml) {
+                 // Prevent infinite loop: If the page is now empty (meaning the item we removed was the ONLY thing, or we had to remove everything to fit nothing),
+                 // then the content is simply too big for the page.
+                 if (!target.innerText.trim() && !target.querySelector('img')) {
+                     console.warn("Content too large for page, cancelling split to prevent loop.");
+                     target.innerHTML = originalHtml; // Restore
+                     return;
+                 }
+
                  // Pass both the overflow content (for new page) AND the remaining content (for current page)
                  // This ensures the parent state updates the current page so React doesn't restore the removed content.
                  onSplit(removedHtml, target.innerHTML);
@@ -108,192 +158,34 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
         return () => clearTimeout(timer);
     }, [data?.initialHtml]); // Run when data changes (initial load of new page)
 
-    const [formats, setFormats] = useState({
-        bold: false,
-        italic: false,
-        underline: false,
-        insertUnorderedList: false,
-        insertOrderedList: false
-    });
-
-    const checkFormats = () => {
-        setFormats({
-            bold: document.queryCommandState('bold'),
-            italic: document.queryCommandState('italic'),
-            underline: document.queryCommandState('underline'),
-            insertUnorderedList: document.queryCommandState('insertUnorderedList'),
-            insertOrderedList: document.queryCommandState('insertOrderedList')
-        });
-    };
-
-    // ... existing performOverflowCheck code ... 
-
-    // Helper to run format command and check state
-    const toggleFormat = (command: string, value?: string) => {
-        document.execCommand(command, false, value);
-        checkFormats();
-        if (contentRef.current) contentRef.current.focus();
-    };
-
-    // ... existing useEffect ...
-
     const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
         performOverflowCheck();
     };
 
+    const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+        performOverflowCheck();
+        onUpdate?.(e.currentTarget.innerHTML);
+    };
+
     const handleKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        checkFormats();
         if (e.key === 'Enter') performOverflowCheck();
     };
 
-    // ... existing manual sync useEffect ...
-
     return (
         <div className="w-[210mm] h-[297mm] bg-white relative shadow-sm overflow-hidden flex flex-col justify-between">
-            {/* ... Header ... */}
-            {/* ... */}
             
-            <div className="flex-1 px-12 py-32 relative group/page overflow-hidden">
-                
-                {/* Formatting Toolbar (Visible on Hover/Focus) */}
-                {/* Formatting Toolbar (Visible on Hover/Focus) */}
-                <div className="absolute top-24 left-12 right-12 flex items-center gap-2 border-b border-zinc-200 pb-2 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity z-50 bg-white/90 backdrop-blur-sm flex-wrap">
-                     {/* Headings */}
-                     <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
-                        <select 
-                            className="bg-zinc-50 border border-zinc-200 text-xs rounded px-2 py-1.5 outline-none focus:border-orange-500 text-zinc-600 w-24"
-                            onChange={(e) => {
-                                e.preventDefault();
-                                toggleFormat('formatBlock', e.target.value);
-                                e.target.value = ""; // Reset
-                            }}
-                        >
-                            <option value="" disabled selected>Heading</option>
-                            <option value="p">Normal</option>
-                            <option value="h1">Heading 1</option>
-                            <option value="h2">Heading 2</option>
-                            <option value="h3">Heading 3</option>
-                        </select>
-                    </div>
-
-                    {/* Font Size */}
-                    <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
-                        <select 
-                            className="bg-zinc-50 border border-zinc-200 text-xs rounded px-2 py-1.5 outline-none focus:border-orange-500 text-zinc-600 w-20"
-                            onChange={(e) => {
-                                e.preventDefault();
-                                toggleFormat('fontSize', e.target.value);
-                                e.target.value = ""; // Reset
-                            }}
-                        >
-                            <option value="" disabled selected>Size</option>
-                            <option value="1">Small</option>
-                            <option value="3">Normal</option>
-                            <option value="4">Large</option>
-                            <option value="5">Huge</option>
-                            <option value="7">Giant</option>
-                        </select>
-                    </div>
-
-                    {/* Text Formatting */}
-                    <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
-                        <button 
-                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('bold'); }}
-                            className={cn(
-                                "p-1.5 rounded transition-colors",
-                                formats.bold ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
-                            )}
-                            title="Bold"
-                        >
-                            <b className="font-serif">B</b>
-                        </button>
-                        <button 
-                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('italic'); }}
-                            className={cn(
-                                "p-1.5 rounded transition-colors",
-                                formats.italic ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
-                            )}
-                            title="Italic"
-                        >
-                            <i className="font-serif">I</i>
-                        </button>
-                        <button 
-                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('underline'); }}
-                            className={cn(
-                                "p-1.5 rounded transition-colors",
-                                formats.underline ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
-                            )}
-                            title="Underline"
-                        >
-                            <u className="font-serif">U</u>
-                        </button>
-                    </div>
-
-                    {/* Lists */}
-                    <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
-                        <button 
-                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('insertUnorderedList'); }}
-                            className={cn(
-                                "p-1.5 rounded transition-colors flex items-center gap-1",
-                                formats.insertUnorderedList ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
-                            )}
-                            title="Bullet List"
-                        >
-                            <span className="text-[10px]">•</span> List
-                        </button>
-                        <button 
-                            onMouseDown={(e) => { e.preventDefault(); toggleFormat('insertOrderedList'); }}
-                            className={cn(
-                                "p-1.5 rounded transition-colors flex items-center gap-1",
-                                formats.insertOrderedList ? "bg-zinc-800 text-white" : "hover:bg-zinc-100 text-zinc-700 hover:text-black"
-                            )}
-                            title="Numbered List"
-                        >
-                            <span className="text-[10px]">1.</span> List
-                        </button>
-                    </div>
-                    
-                    {/* Presets */}
-                    <select 
-                        className="bg-zinc-50 border border-zinc-200 text-xs rounded px-2 py-1.5 outline-none focus:border-orange-500 text-zinc-600 min-w-[120px]"
-                        onChange={(e) => {
-                            const preset = CONTENT_PRESETS[e.target.value];
-                            // Using a more robust selector than random ID
-                             const editableDiv = (e.target as HTMLElement).closest('.group\\/page')?.querySelector('[contentEditable]') as HTMLElement;
-                             
-                             if (editableDiv && preset) {
-                                // Append content
-                                const newContent = `<br/><br/>${preset}`;
-                                editableDiv.insertAdjacentHTML('beforeend', newContent);
-                                
-                                // Manually trigger overflow check
-                                // Create a synthetic event or just call logic directly
-                                performOverflowCheck();
-                             }
-                             e.target.value = ""; // Reset
-                        }}
-                    >
-                        <option value="">-- Add Section --</option>
-                        {Object.keys(CONTENT_PRESETS).map(key => (
-                            <option key={key} value={key}>{key}</option>
-                        ))}
-                    </select>
-                </div>
-
+            <div className="flex-1 px-12 py-16 relative group/page overflow-hidden">
                 <div 
                     ref={contentRef}
                     contentEditable
                     className="w-full h-full outline-none text-zinc-800 leading-relaxed space-y-4 hover:bg-zinc-50 focus:bg-orange-50/10 p-4 rounded overflow-hidden [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h1]:text-4xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mb-2"
                     suppressContentEditableWarning
                     onInput={handleInput}
-                    onBlur={handleInput}
+                    onBlur={handleBlur}
                     onKeyUp={handleKeyUp} 
-                    onMouseUp={checkFormats}
                     // Initial render only
                     dangerouslySetInnerHTML={!contentRef.current ? { __html: data?.initialHtml || `
-                        <h2 class="text-xl font-bold mb-4">Scope of Work</h2>
-                        <p>The purpose of this project is to...</p>
-                        <p>Select a preset from the toolbar above to replace this content.</p>
+                        <p class="text-base text-zinc-800"><br/></p>
                     ` } : undefined}
                 />
             </div>

@@ -8,6 +8,7 @@ import { CoverPage } from "./CoverPage";
 import { ContentPage } from "./ContentPage";
 import { TablePage } from "./TablePage";
 import { LastPage } from "./LastPage";
+import { EditorToolbar } from "./EditorToolbar";
 import { exportProposalPdf } from "@/lib/proposalExport";
 
 const PageWrapper = ({ children, onDelete, pageNumber }: { children: React.ReactNode, onDelete: () => void, pageNumber: number }) => (
@@ -32,6 +33,7 @@ const PageWrapper = ({ children, onDelete, pageNumber }: { children: React.React
 
 export function ProposalEditor() {
   const [pages, setPages] = useState<ProposalPageData[]>([]);
+  const [focusTarget, setFocusTarget] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const addPage = (type: PageType) => {
@@ -89,6 +91,14 @@ export function ProposalEditor() {
     }
 
     setPages(updatedPages);
+    // Focus the next page (where content was moved)
+    if (updatedPages[pageIndex + 1]) {
+        setFocusTarget(updatedPages[pageIndex + 1].id);
+    }
+  };
+
+  const updatePageContent = (id: string, html: string) => {
+    setPages(prev => prev.map(p => p.id === id ? { ...p, content: { ...p.content, initialHtml: html } } : p));
   };
 
   return (
@@ -136,13 +146,16 @@ export function ProposalEditor() {
         </div>
 
         {/* Scrollable Preview Area */}
-        <div ref={containerRef} id="proposal-container" className="flex-1 overflow-y-auto bg-zinc-200/50 rounded-xl border-dashed border-2 border-zinc-300 p-8 shadow-inner relative">
-            {pages.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-zinc-400">
-                    <p className="text-lg font-medium">No pages yet</p>
-                    <p className="text-sm">Select a page type from the left to start</p>
-                </div>
-            ) : (
+        <div ref={containerRef} id="proposal-container" className="flex-1 overflow-y-auto bg-zinc-200/50 rounded-xl border-dashed border-2 border-zinc-300 shadow-inner relative">
+            <EditorToolbar />
+            
+            <div className="p-8">
+                {pages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-zinc-400 min-h-[500px]">
+                        <p className="text-lg font-medium">No pages yet</p>
+                        <p className="text-sm">Select a page type from the left to start</p>
+                    </div>
+                ) : (
                 <div className="flex flex-col gap-8 items-center pb-20">
                     {pages.map((page, index) => (
                         <PageWrapper key={page.id} onDelete={() => removePage(page.id)} pageNumber={index + 1}>
@@ -151,6 +164,9 @@ export function ProposalEditor() {
                                 <ContentPage 
                                     data={page.content} 
                                     onSplit={(overflow, remaining) => splitPage(page.id, overflow, remaining)}
+                                    autoFocus={page.id === focusTarget}
+                                    onFocusConsumed={() => setFocusTarget(null)}
+                                    onUpdate={(html) => updatePageContent(page.id, html)}
                                 />
                             )}
                             {page.type === "TABLE" && <TablePage data={page.content} />}
@@ -159,6 +175,7 @@ export function ProposalEditor() {
                     ))}
                 </div>
             )}
+            </div>
         </div>
     </div>
   );
