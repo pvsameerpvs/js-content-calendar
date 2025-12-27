@@ -129,8 +129,8 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
     // ... existing performOverflowCheck code ... 
 
     // Helper to run format command and check state
-    const toggleFormat = (command: string) => {
-        document.execCommand(command);
+    const toggleFormat = (command: string, value?: string) => {
+        document.execCommand(command, false, value);
         checkFormats();
         if (contentRef.current) contentRef.current.focus();
     };
@@ -156,7 +156,45 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
             <div className="flex-1 px-12 py-32 relative group/page overflow-hidden">
                 
                 {/* Formatting Toolbar (Visible on Hover/Focus) */}
-                <div className="absolute top-24 left-12 right-12 flex items-center gap-2 border-b border-zinc-200 pb-2 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity z-50 bg-white/90 backdrop-blur-sm">
+                {/* Formatting Toolbar (Visible on Hover/Focus) */}
+                <div className="absolute top-24 left-12 right-12 flex items-center gap-2 border-b border-zinc-200 pb-2 mb-4 opacity-0 group-hover/page:opacity-100 transition-opacity z-50 bg-white/90 backdrop-blur-sm flex-wrap">
+                     {/* Headings */}
+                     <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
+                        <select 
+                            className="bg-zinc-50 border border-zinc-200 text-xs rounded px-2 py-1.5 outline-none focus:border-orange-500 text-zinc-600 w-24"
+                            onChange={(e) => {
+                                e.preventDefault();
+                                toggleFormat('formatBlock', e.target.value);
+                                e.target.value = ""; // Reset
+                            }}
+                        >
+                            <option value="" disabled selected>Heading</option>
+                            <option value="p">Normal</option>
+                            <option value="h1">Heading 1</option>
+                            <option value="h2">Heading 2</option>
+                            <option value="h3">Heading 3</option>
+                        </select>
+                    </div>
+
+                    {/* Font Size */}
+                    <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
+                        <select 
+                            className="bg-zinc-50 border border-zinc-200 text-xs rounded px-2 py-1.5 outline-none focus:border-orange-500 text-zinc-600 w-20"
+                            onChange={(e) => {
+                                e.preventDefault();
+                                toggleFormat('fontSize', e.target.value);
+                                e.target.value = ""; // Reset
+                            }}
+                        >
+                            <option value="" disabled selected>Size</option>
+                            <option value="1">Small</option>
+                            <option value="3">Normal</option>
+                            <option value="4">Large</option>
+                            <option value="5">Huge</option>
+                            <option value="7">Giant</option>
+                        </select>
+                    </div>
+
                     {/* Text Formatting */}
                     <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
                         <button 
@@ -245,7 +283,7 @@ export function ContentPage({ data, onSplit }: { data: any, onSplit?: (overflow:
                 <div 
                     ref={contentRef}
                     contentEditable
-                    className="w-full h-full outline-none text-zinc-800 leading-relaxed space-y-4 hover:bg-zinc-50 focus:bg-orange-50/10 p-4 rounded overflow-hidden [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                    className="w-full h-full outline-none text-zinc-800 leading-relaxed space-y-4 hover:bg-zinc-50 focus:bg-orange-50/10 p-4 rounded overflow-hidden [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h1]:text-4xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mb-2"
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onBlur={handleInput}
