@@ -42,10 +42,25 @@ export function ProposalEditor() {
         containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'smooth' });
     }, 100);
   };
-
   const removePage = (id: string) => {
     setPages(pages.filter(p => p.id !== id));
     toast.info("Page removed");
+  };
+
+  const splitPage = (sourcePageId: string, remainingContent: string) => {
+    const pageIndex = pages.findIndex(p => p.id === sourcePageId);
+    if (pageIndex === -1) return;
+
+    const newPage: ProposalPageData = {
+        id: crypto.randomUUID(),
+        type: "CONTENT",
+        content: { initialHtml: remainingContent } // Pass overflow content
+    };
+
+    const newPages = [...pages];
+    newPages.splice(pageIndex + 1, 0, newPage);
+    setPages(newPages);
+    toast.success("New page created for overflow content");
   };
 
   return (
@@ -104,7 +119,12 @@ export function ProposalEditor() {
                     {pages.map((page) => (
                         <PageWrapper key={page.id} onDelete={() => removePage(page.id)}>
                             {page.type === "COVER" && <CoverPage data={page.content} isActive={true} />}
-                            {page.type === "CONTENT" && <ContentPage data={page.content} />}
+                            {page.type === "CONTENT" && (
+                                <ContentPage 
+                                    data={page.content} 
+                                    onSplit={(content) => splitPage(page.id, content)}
+                                />
+                            )}
                             {page.type === "TABLE" && <TablePage data={page.content} />}
                             {page.type === "LAST" && <LastPage data={page.content} />}
                         </PageWrapper>
