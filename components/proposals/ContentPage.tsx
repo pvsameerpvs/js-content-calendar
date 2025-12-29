@@ -166,8 +166,85 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
         return () => clearTimeout(timer);
     }, [data?.initialHtml]); // Run when data changes (initial load of new page)
 
+    const calculateTotal = (table: HTMLElement) => {
+        const costCells = table.querySelectorAll('.pricing-cost');
+        let total = 0;
+        costCells.forEach(cell => {
+            const text = cell.textContent || "";
+            const clean = text.replace(/[^0-9.]/g, '');
+            const val = parseFloat(clean) || 0;
+            total += val;
+        });
+        const totalCell = table.querySelector('.pricing-total');
+        if (totalCell) totalCell.textContent = total.toString();
+    };
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        let target = e.target as HTMLElement;
+        if (target.nodeType === Node.TEXT_NODE && target.parentElement) {
+            target = target.parentElement;
+        }
+        
+        // Handle "Add Item"
+        const addBtn = target.closest('.pricing-table-add-btn');
+        if (addBtn) {
+            e.preventDefault(); 
+            const table = addBtn.closest('table');
+            if (!table) return;
+            
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+
+            // Row Template
+            const newRow = document.createElement('tr');
+            newRow.className = "border-b border-zinc-300 group";
+            newRow.innerHTML = `
+                <td class="p-2 border-r border-zinc-300 align-top"><div class="outline-none" contenteditable>New Service</div></td>
+                <td class="p-2 border-r border-zinc-300 align-top"><div class="outline-none" contenteditable>Description</div></td>
+                <td class="p-2 border-r border-zinc-300 text-center align-top"><div class="pricing-cost outline-none" contenteditable>0</div></td>
+                <td class="p-2 align-middle text-center">
+                    <button class="pricing-table-delete-btn text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity print:hidden" contenteditable="false">
+                        🗑️
+                    </button>
+                </td>
+            `;
+
+            const btnRow = addBtn.closest('tr');
+            if (btnRow) {
+                tbody.insertBefore(newRow, btnRow);
+            }
+            
+            performOverflowCheck();
+            return;
+        }
+
+        // Handle "Delete Row"
+        const deleteBtn = target.closest('.pricing-table-delete-btn');
+        if (deleteBtn) {
+            e.preventDefault(); 
+            const row = deleteBtn.closest('tr');
+            const table = row?.closest('table');
+            if (row && table) {
+                row.remove();
+                calculateTotal(table);
+                performOverflowCheck();
+            }
+        }
+    };
+
     const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
         performOverflowCheck();
+
+        // Calculate total on input
+        let target = e.target as HTMLElement;
+        if (target.nodeType === Node.TEXT_NODE && target.parentElement) {
+             target = target.parentElement;
+        }
+
+        if (target.closest('.pricing-cost')) {
+            const table = target.closest('table');
+            if (table) calculateTotal(table);
+        }
 
         // Debounced update to keep parent state fresh (prevents data loss on remote merges)
         if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
@@ -229,6 +306,7 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onBlur={handleBlur}
+                    onClick={handleClick}
                     onKeyUp={handleKeyUp} 
                     // Initial render only
                     dangerouslySetInnerHTML={!contentRef.current ? { __html: data?.initialHtml || `

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Table, GripHorizontal, LayoutTemplate } from "lucide-react";
+import { Table, GripHorizontal, LayoutTemplate, Plus } from "lucide-react";
 import { TableSelector } from "./TableSelector";
 import { CONTENT_PRESETS } from "./contentPresets";
 
@@ -234,6 +234,75 @@ export function EditorToolbar() {
                     title="Insert Plan Table"
                 >
                     <LayoutTemplate className="w-3 h-3" /> Plan Table
+                </button>
+            </div>
+
+            {/* Pricing Table (New) */}
+            <div className="flex items-center gap-1 border-r border-zinc-200 pr-2 mr-2">
+                <button 
+                    type="button"
+                    onMouseDown={(e) => { 
+                        e.preventDefault(); 
+                        const tableHtml = `
+                            <h2 style="font-size: 1.25rem; font-weight: 700; text-transform: uppercase; border-bottom: 2px solid #f97316; padding-bottom: 0.5rem; margin-bottom: 1rem; width: fit-content; color: #18181b;">Monthly Package</h2>
+                            <table class="w-full border border-zinc-300 text-sm text-zinc-900 pricing-table" style="border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: white; border-bottom: 1px solid #18181b;">
+                                        <th style="border-right: 1px solid #d4d4d8; padding: 0.75rem; width: 25%;">Services</th>
+                                        <th style="border-right: 1px solid #d4d4d8; padding: 0.75rem; width: 50%;">Description</th>
+                                        <th style="border-right: 1px solid #d4d4d8; padding: 0.75rem; width: 20%;">Cost ( AED )</th>
+                                        <th style="padding: 0.75rem; width: 40px; background-color: #fafafa;" class="print:hidden"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-zinc-300 group">
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Website Development</div></td>
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Design & setup of responsive website</div></td>
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; text-align: center; vertical-align: top;"><div class="pricing-cost outline-none" contenteditable>999</div></td>
+                                        <td style="padding: 0.5rem; vertical-align: middle; text-align: center;" class="print:hidden">
+                                            <button class="pricing-table-delete-btn text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity" contenteditable="false">🗑️</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-zinc-300 group">
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Social Media</div></td>
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Monthly management & content creation</div></td>
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; text-align: center; vertical-align: top;"><div class="pricing-cost outline-none" contenteditable>1000/ Month</div></td>
+                                        <td style="padding: 0.5rem; vertical-align: middle; text-align: center;" class="print:hidden">
+                                            <button class="pricing-table-delete-btn text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity" contenteditable="false">🗑️</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-zinc-300 group">
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>SEO</div></td>
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Search engine optimization</div></td>
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; text-align: center; vertical-align: top;"><div class="pricing-cost outline-none" contenteditable>1000/ Month</div></td>
+                                        <td style="padding: 0.5rem; vertical-align: middle; text-align: center;" class="print:hidden">
+                                            <button class="pricing-table-delete-btn text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity" contenteditable="false">🗑️</button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Add Item Row -->
+                                    <tr style="background-color: #fff7ed; border-bottom: 2px solid #18181b;" class="print:hidden">
+                                        <td colspan="4" style="padding: 0.5rem; text-align: center;">
+                                            <button class="pricing-table-add-btn text-orange-600 font-medium hover:text-orange-700 w-full" contenteditable="false">+ Add Item</button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Total Row -->
+                                    <tr>
+                                        <td colspan="2" style="padding: 0.75rem; text-align: right; font-weight: 700; border-right: 1px solid #d4d4d8;">Total</td>
+                                        <td style="padding: 0.75rem; text-align: center; font-weight: 700; border-right: 1px solid #d4d4d8;"><div class="pricing-total">2999</div></td>
+                                        <td class="print:hidden"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p><br/></p>
+                        `;
+                        document.execCommand('insertHTML', false, tableHtml);
+                    }}
+                    className="p-1.5 rounded transition-colors flex items-center gap-1 hover:bg-zinc-100 text-zinc-700 hover:text-black"
+                    title="Insert Monthly Package Pricing Table"
+                >
+                    <Plus className="w-3 h-3 text-orange-600" /> Pricing Table
                 </button>
             </div>
 
