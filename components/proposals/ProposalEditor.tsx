@@ -85,7 +85,7 @@ export function ProposalEditor() {
             id: crypto.randomUUID(),
             type: "CONTENT",
             content: { initialHtml: overflowContent },
-            isContinuation: true
+            isContinuation: false
         };
         updatedPages.splice(pageIndex + 1, 0, newPage);
         toast.success("New page created");

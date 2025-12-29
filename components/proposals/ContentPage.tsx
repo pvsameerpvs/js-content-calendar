@@ -33,12 +33,10 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
              const range = document.createRange();
              const sel = window.getSelection();
              if (sel) {
-                 // Attempt to find the first text node?
-                 // contentRef.current.firstChild could be <p>...</p>
-                 // Let's just focus for now, browser default is reasonable (usually start).
-                 // Actually, placing at start is safer for "continue typing".
-                 range.setStart(contentRef.current, 0);
-                 range.collapse(true);
+                 // Move cursor to the END of the content so typing continues naturally
+                 // "that contnte lat show cursor" -> User wants cursor at the last position of moved content.
+                 range.selectNodeContents(contentRef.current);
+                 range.collapse(false); // Collapse to end
                  sel.removeAllRanges();
                  sel.addRange(range);
              }
@@ -119,6 +117,14 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
                          // Or we removed all items and the empty UL still exists.
                          // Remove the empty UL and continue to previous sibling
                          if (list.parentNode) target.removeChild(list); 
+                         
+                         // CRITICAL FIX: The `list` node is now empty because we removed all children.
+                         // Use `listRemovedHtml` to reconstruct the content.
+                         const tagName = list.tagName.toLowerCase();
+                         removedHtml = `<${tagName} class="${list.className}" style="${list.style.cssText}">${listRemovedHtml}</${tagName}>` + removedHtml;
+                         
+                         // Continue loop explicitly to skip the generic append at the bottom
+                         continue;
                      }
                  } else {
                     if (node.parentNode) target.removeChild(node);
