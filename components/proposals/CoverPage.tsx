@@ -14,14 +14,13 @@ export function CoverPage({ data, isActive }: { data: any, isActive?: boolean })
         </div>
         
         {/* Logo Container */}
-        <div className="mb-6 relative w-full h-32 flex justify-center">
-             <Image 
+        {/* Logo Container */}
+        <div className="mb-6 w-full flex justify-center">
+             {/* Using standard img tag avoids Next.js Image print issues */}
+             <img 
                 src="/logo-js.png" 
                 alt="Just Search"
-                width={500}
-                height={150}
-                className="object-contain"
-                priority
+                className="h-28 w-auto object-contain"
              />
         </div>
 
@@ -43,7 +42,7 @@ export function CoverPage({ data, isActive }: { data: any, isActive?: boolean })
             
             <div 
                 contentEditable 
-                className="text-4xl font-extrabold text-zinc-800 uppercase leading-snug mb-20 outline-none hover:bg-zinc-50 focus:bg-orange-50/30 p-2 border border-transparent focus:border-orange-200 rounded"
+                className="text-4xl font-extrabold text-zinc-800  leading-snug mb-20 outline-none hover:bg-zinc-50 focus:bg-orange-50/30 p-2 border border-transparent focus:border-orange-200 rounded"
                 suppressContentEditableWarning
             >
                 [DIGITAL MARKETING/Website Development/ Social Media Marketing/ SEO & AEO] SOLUTIONS
