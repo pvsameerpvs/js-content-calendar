@@ -277,20 +277,44 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
                       <div className="bg-zinc-900 w-16 h-full -ml-8" style={{ clipPath: "polygon(40% 0, 100% 0, 60% 100%, 0% 100%)" }}></div>
                  </div>
 
-                 <div className="px-12 py-4 flex items-center justify-between">
-                     <div className="relative w-48 h-12">
-                         <Image src="/logo-js.png" alt="Just Search" fill className="object-contain object-left" />
-                     </div>
-                     <div className="flex flex-col gap-2 text-xs text-zinc-600 items-end">
-                         <div className="flex items-center gap-2">
-                             <div className="w-5 h-5 rounded-full bg-[#FF4B1F] text-white flex items-center justify-center"><Mail className="w-3 h-3" /></div>
-                             <span>info@justsearch.ae</span>
-                         </div>
-                         <div className="flex items-center gap-2">
-                             <div className="w-5 h-5 rounded-full bg-[#FF4B1F] text-white flex items-center justify-center"><Globe className="w-3 h-3" /></div>
-                             <span>www.justsearch.ae</span>
-                         </div>
-                     </div>
+                 <div className="px-12 py-4">
+                     <table className="w-full border-collapse">
+                         <tbody>
+                             <tr>
+                                 {/* Left: Logo */}
+                                 <td className="align-middle text-left w-1/2">
+                                     <img src="/logo-js.png" alt="Just Search" className="h-10 w-auto object-contain object-left" style={{ maxWidth: 'none', height: '2.5rem' }} />
+                                 </td>
+                                 {/* Right: Contact Info */}
+                                 <td className="align-middle text-right w-1/2">
+                                     <table className="inline-table text-left border-collapse" style={{ marginLeft: 'auto' }}>
+                                         <tbody>
+                                             <tr>
+                                                 <td className="align-middle pr-3 pb-2">
+                                                     {/* <div className="w-5 h-5 rounded-full bg-[#FF4B1F] text-white flex items-center justify-center shrink-0">
+                                                         <Mail className="w-3 h-3" />
+                                                     </div> */}
+                                                 </td>
+                                                 <td className="align-middle text-xs text-zinc-600 pb-2 whitespace-nowrap">
+                                                     info@justsearch.ae
+                                                 </td>
+                                             </tr>
+                                             <tr>
+                                                 <td className="align-middle pr-3">
+                                                     {/* <div className="w-5 h-5 rounded-full bg-[#FF4B1F] text-white flex items-center justify-center shrink-0">
+                                                         <Globe className="w-3 h-3" />
+                                                     </div> */}
+                                                 </td>
+                                                 <td className="align-middle text-xs text-zinc-600 whitespace-nowrap">
+                                                     www.justsearch.ae
+                                                 </td>
+                                             </tr>
+                                         </tbody>
+                                     </table>
+                                 </td>
+                             </tr>
+                         </tbody>
+                     </table>
                  </div>
             </div>
             )}

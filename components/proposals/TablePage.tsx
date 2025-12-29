@@ -20,14 +20,40 @@ export function TablePage({ data }: { data: any }) {
             {/* Header */}
             <div className="absolute top-0 left-0 w-full z-20 bg-white">
                 <div className="h-2 bg-[#FF4B1F] w-full"></div>
-                <div className="px-8 py-4 flex items-center justify-between border-b border-zinc-100">
-                    <div className="w-48 relative h-12">
-                        <Image src="/logo-js.png" alt="Just Search" fill className="object-contain object-left" />
-                    </div>
-                    <div className="flex flex-col items-end gap-1 text-xs text-zinc-600">
-                         <div className="flex items-center gap-2"><Mail className="w-3 h-3 text-[#FF4B1F]" /> info@justsearch.ae</div>
-                         <div className="flex items-center gap-2"><Globe className="w-3 h-3 text-[#FF4B1F]" /> www.justsearch.ae</div>
-                    </div>
+                <div className="px-8 py-4">
+                     <table className="w-full border-collapse">
+                         <tbody>
+                             <tr>
+                                 {/* Left: Logo */}
+                                 <td className="align-middle text-left w-1/2">
+                                     <img src="/logo-js.png" alt="Just Search" className="h-10 w-auto object-contain object-left" style={{ maxWidth: 'none', height: '2.5rem' }} />
+                                 </td>
+                                 {/* Right: Contact Info */}
+                                 <td className="align-middle text-right w-1/2">
+                                     <table className="inline-table text-left border-collapse" style={{ marginLeft: 'auto' }}>
+                                         <tbody>
+                                             <tr>
+                                                 <td className="align-middle pr-3 pb-2">
+                                                     {/* Icon removed */}
+                                                 </td>
+                                                 <td className="align-middle text-xs text-zinc-600 pb-2 whitespace-nowrap">
+                                                     info@justsearch.ae
+                                                 </td>
+                                             </tr>
+                                             <tr>
+                                                 <td className="align-middle pr-3">
+                                                     {/* Icon removed */}
+                                                 </td>
+                                                 <td className="align-middle text-xs text-zinc-600 whitespace-nowrap">
+                                                     www.justsearch.ae
+                                                 </td>
+                                             </tr>
+                                         </tbody>
+                                     </table>
+                                 </td>
+                             </tr>
+                         </tbody>
+                     </table>
                 </div>
             </div>
 

@@ -117,19 +117,19 @@ export function ProposalEditor() {
                     </button>
                     <button 
                         onClick={() => addPage("CONTENT")}
-                        className="flex items-center gap-2 px-4 py-3 text-sm text-left font-medium text-zinc-700 bg-zinc-50 hover:bg-zinc-100 rounded-lg border border-zinc-100 transition-all"
+                        className="flex items-center gap-2 px-4 py-3 text-sm text-left font-medium text-zinc-700 bg-zinc-50 hover:bg-orange-50 hover:text-orange-700 rounded-lg border border-zinc-100 hover:border-orange-200 transition-all"
                     >
                         <Plus className="w-4 h-4" /> Content / Text
                     </button>
-                    <button 
+                    {/* <button 
                         onClick={() => addPage("TABLE")}
-                        className="flex items-center gap-2 px-4 py-3 text-sm text-left font-medium text-zinc-700 bg-zinc-50 hover:bg-zinc-100 rounded-lg border border-zinc-100 transition-all"
+                        className="flex items-center gap-2 px-4 py-3 text-sm text-left font-medium text-zinc-700 bg-zinc-50 hover:bg-orange-50 hover:text-orange-700 rounded-lg border border-zinc-100 hover:border-orange-200 transition-all"
                     >
                         <Plus className="w-4 h-4" /> Pricing Table
-                    </button>
+                    </button> */}
                     <button 
                         onClick={() => addPage("LAST")}
-                        className="flex items-center gap-2 px-4 py-3 text-sm text-left font-medium text-zinc-700 bg-zinc-50 hover:bg-zinc-100 rounded-lg border border-zinc-100 transition-all"
+                         className="flex items-center gap-2 px-4 py-3 text-sm text-left font-medium text-zinc-700 bg-zinc-50 hover:bg-orange-50 hover:text-orange-700 rounded-lg border border-zinc-100 hover:border-orange-200 transition-all"
                     >
                         <Plus className="w-4 h-4" /> Acceptance / Last
                     </button>
