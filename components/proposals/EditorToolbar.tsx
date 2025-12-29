@@ -245,50 +245,49 @@ export function EditorToolbar() {
                         e.preventDefault(); 
                         const tableHtml = `
                             <h2 style="font-size: 1.25rem; font-weight: 700; text-transform: uppercase; border-bottom: 2px solid #f97316; padding-bottom: 0.5rem; margin-bottom: 1rem; width: fit-content; color: #18181b;">Monthly Package</h2>
-                            <table class="w-full border border-zinc-300 text-sm text-zinc-900 pricing-table" style="border-collapse: collapse;">
+                            <table class="w-full border border-zinc-300 text-sm text-zinc-900 pricing-table group" style="border-collapse: collapse;">
                                 <thead>
                                     <tr style="background-color: white; border-bottom: 1px solid #18181b;">
                                         <th style="border-right: 1px solid #d4d4d8; padding: 0.75rem; width: 25%;">Services</th>
                                         <th style="border-right: 1px solid #d4d4d8; padding: 0.75rem; width: 50%;">Description</th>
-                                        <th style="border-right: 1px solid #d4d4d8; padding: 0.75rem; width: 20%;">Cost ( AED )</th>
-                                        <th style="padding: 0.75rem; width: 40px; background-color: #fafafa;" class="print:hidden"></th>
+                                        <th style="border-right: 1px solid #d4d4d8; padding: 0.75rem; width: 25%;">Cost ( AED )</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="border-b border-zinc-300 group">
-                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Website Development</div></td>
-                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Design & setup of responsive website</div></td>
-                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; text-align: center; vertical-align: top;"><div class="pricing-cost outline-none" contenteditable>999</div></td>
-                                        <td style="padding: 0.5rem; vertical-align: middle; text-align: center;" class="print:hidden">
-                                            <button class="pricing-table-delete-btn text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity" contenteditable="false">
+                                    <tr class="group">
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Website Development</div></td>
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Design & setup of responsive website</div></td>
+                                        <td class="relative" style="padding: 0.5rem; border-right: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; text-align: center; vertical-align: top;">
+                                            <div class="pricing-cost outline-none" contenteditable>999</div>
+                                            <button class="pricing-table-delete-btn absolute right-1 top-2 text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity print:hidden" contenteditable="false">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2 pointer-events-none"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr class="border-b border-zinc-300 group">
-                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Social Media</div></td>
-                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Monthly management & content creation</div></td>
-                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; text-align: center; vertical-align: top;"><div class="pricing-cost outline-none" contenteditable>1000/ Month</div></td>
-                                        <td style="padding: 0.5rem; vertical-align: middle; text-align: center;" class="print:hidden">
-                                            <button class="pricing-table-delete-btn text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity" contenteditable="false">
+                                    <tr class="group">
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Social Media</div></td>
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Monthly management & content creation</div></td>
+                                        <td class="relative" style="padding: 0.5rem; border-right: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; text-align: center; vertical-align: top;">
+                                            <div class="pricing-cost outline-none" contenteditable>1000/ Month</div>
+                                            <button class="pricing-table-delete-btn absolute right-1 top-2 text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity print:hidden" contenteditable="false">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2 pointer-events-none"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr class="border-b border-zinc-300 group">
-                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>SEO</div></td>
-                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Search engine optimization</div></td>
-                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; text-align: center; vertical-align: top;"><div class="pricing-cost outline-none" contenteditable>1000/ Month</div></td>
-                                        <td style="padding: 0.5rem; vertical-align: middle; text-align: center;" class="print:hidden">
-                                            <button class="pricing-table-delete-btn text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity" contenteditable="false">
+                                    <tr class="group">
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>SEO</div></td>
+                                        <td style="padding: 0.5rem; border-right: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; vertical-align: top;"><div class="outline-none" contenteditable>Search engine optimization</div></td>
+                                        <td class="relative" style="padding: 0.5rem; border-right: 1px solid #d4d4d8; border-bottom: 1px solid #d4d4d8; text-align: center; vertical-align: top;">
+                                            <div class="pricing-cost outline-none" contenteditable>1000/ Month</div>
+                                            <button class="pricing-table-delete-btn absolute right-1 top-2 text-zinc-300 hover:text-red-500 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity print:hidden" contenteditable="false">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2 pointer-events-none"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                             </button>
                                         </td>
                                     </tr>
                                     
                                     <!-- Add Item Row -->
-                                    <tr style="background-color: #fff7ed; border-bottom: 2px solid #18181b;" class="print:hidden">
-                                        <td colspan="4" style="padding: 0.5rem; text-align: center;">
+                                    <tr style="background-color: #fff7ed; border-bottom: 2px solid #18181b;" class="print:hidden opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <td colspan="3" style="padding: 0.5rem; text-align: center;">
                                             <button class="pricing-table-add-btn text-orange-600 font-medium hover:text-orange-700 w-full" contenteditable="false">+ Add Item</button>
                                         </td>
                                     </tr>
@@ -297,7 +296,6 @@ export function EditorToolbar() {
                                     <tr>
                                         <td colspan="2" style="padding: 0.75rem; text-align: right; font-weight: 700; border-right: 1px solid #d4d4d8;">Total</td>
                                         <td style="padding: 0.75rem; text-align: center; font-weight: 700; border-right: 1px solid #d4d4d8;"><div class="pricing-total">2999</div></td>
-                                        <td class="print:hidden"></td>
                                     </tr>
                                 </tbody>
                             </table>
