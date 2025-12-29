@@ -286,14 +286,14 @@ export function EditorToolbar() {
                                     </tr>
                                     
                                     <!-- Add Item Row -->
-                                    <tr style="background-color: #fff7ed; border-bottom: 2px solid #18181b;" class="print:hidden opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                        <td colspan="3" style="padding: 0.5rem; text-align: center;">
+                                    <tr style="background-color: #fff7ed;" class="print:hidden opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <td colspan="3" style="padding: 0.5rem; text-align: center;" class="print:hidden">
                                             <button class="pricing-table-add-btn text-orange-600 font-medium hover:text-orange-700 w-full" contenteditable="false">+ Add Item</button>
                                         </td>
                                     </tr>
 
                                     <!-- Total Row -->
-                                    <tr>
+                                    <tr style="border-top: 2px solid #18181b;">
                                         <td colspan="2" style="padding: 0.75rem; text-align: right; font-weight: 700; border-right: 1px solid #d4d4d8;">Total</td>
                                         <td style="padding: 0.75rem; text-align: center; font-weight: 700; border-right: 1px solid #d4d4d8;"><div class="pricing-total">2999</div></td>
                                     </tr>
