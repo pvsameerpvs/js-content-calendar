@@ -14,7 +14,6 @@ export function CoverPage({ data, isActive }: { data: any, isActive?: boolean })
         </div>
         
         {/* Logo Container */}
-        {/* Logo Container */}
         <div className="mb-6 w-full flex justify-center">
              {/* Using standard img tag avoids Next.js Image print issues */}
              <img 
