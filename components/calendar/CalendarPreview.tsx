@@ -73,6 +73,10 @@ export function CalendarPreview() {
   const clientName = useCalendarStore((s) => s.clientName);
   const setClientName = useCalendarStore((s) => s.setClientName);
   const logoDataUrl = useCalendarStore((s) => s.logoDataUrl);
+  const startDate = useCalendarStore((s) => s.startDate);
+  const endDate = useCalendarStore((s) => s.endDate);
+  const setStartDate = useCalendarStore((s) => s.setStartDate);
+  const setEndDate = useCalendarStore((s) => s.setEndDate);
   const days = useCalendarStore((s) => s.days);
   const updateDay = useCalendarStore((s) => s.updateDay);
   
@@ -213,9 +217,39 @@ export function CalendarPreview() {
                  </span>
              </div>
 
-             {/* Right: Website URL */}
-             <div className="w-[60mm] flex justify-end items-center">
-                 <span className="text-white font-bold text-[16px] tracking-wide opacity-100 drop-shadow-md">{brandRightText}</span>
+             {/* Right: Date Range */}
+             <div className="w-[80mm] flex flex-col items-end justify-center select-none">
+                 {/* From Date */}
+                 <div className="flex items-center gap-2 mb-1">
+                     <span className="text-white/80 font-bold text-[10px] uppercase tracking-wider">FROM:</span>
+                     {isPdfExporting ? (
+                         <span className="text-white font-bold text-[14px] tracking-wide min-w-[30mm] text-right">{startDate || "DD/MM/YYYY"}</span>
+                     ) : (
+                         <input 
+                            type="text" 
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            placeholder="DD/MM/YYYY"
+                            className="bg-transparent border-b border-white/30 text-white font-bold text-[14px] tracking-wide w-[30mm] text-right outline-none placeholder:text-white/30 hover:border-white/60 focus:border-white transition-colors"
+                         />
+                     )}
+                 </div>
+
+                 {/* To Date */}
+                 <div className="flex items-center gap-2">
+                     <span className="text-white/80 font-bold text-[10px] uppercase tracking-wider">TO:</span>
+                      {isPdfExporting ? (
+                         <span className="text-white font-bold text-[14px] tracking-wide min-w-[30mm] text-right">{endDate || "DD/MM/YYYY"}</span>
+                     ) : (
+                         <input 
+                            type="text" 
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            placeholder="DD/MM/YYYY"
+                            className="bg-transparent border-b border-white/30 text-white font-bold text-[14px] tracking-wide w-[30mm] text-right outline-none placeholder:text-white/30 hover:border-white/60 focus:border-white transition-colors"
+                         />
+                     )}
+                 </div>
              </div>
           </div>
 

@@ -14,6 +14,8 @@ export type CalendarState = {
   brandRightText: string; // "justsearch.ae"
   clientName: string; // "Your "
   logoDataUrl?: string;
+  startDate?: string;
+  endDate?: string;
 
   days: Record<WeekdayKey, DayData>;
 
@@ -21,6 +23,8 @@ export type CalendarState = {
   setBrandRightText: (v: string) => void;
   setClientName: (v: string) => void;
   setLogo: (dataUrl?: string) => void;
+  setStartDate: (v: string) => void;
+  setEndDate: (v: string) => void;
 
   updateDay: (key: WeekdayKey, patch: Partial<DayData>) => void;
   setDayMoodImage: (key: WeekdayKey, dataUrl?: string) => void;

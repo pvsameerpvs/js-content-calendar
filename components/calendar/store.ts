@@ -15,6 +15,8 @@ export const useCalendarStore = create<CalendarState>((set) => ({
   brandRightText: "justsearch.ae",
   clientName: "CLIENT COMPANY NAME",
   logoDataUrl: undefined,
+  startDate: "",
+  endDate: "",
 
   days: defaultDays(),
 
@@ -22,6 +24,8 @@ export const useCalendarStore = create<CalendarState>((set) => ({
   setBrandRightText: (v) => set({ brandRightText: v }),
   setClientName: (v) => set({ clientName: v }),
   setLogo: (dataUrl) => set({ logoDataUrl: dataUrl }),
+  setStartDate: (v) => set({ startDate: v }),
+  setEndDate: (v) => set({ endDate: v }),
 
   updateDay: (key, patch) =>
     set((s) => ({
@@ -45,6 +49,8 @@ export const useCalendarStore = create<CalendarState>((set) => ({
       brandRightText: "justsearch.ae",
       clientName: "CLIENT COMPANY NAME",
       logoDataUrl: undefined,
+      startDate: "",
+      endDate: "",
       days: defaultDays(),
     }),
 }));
