@@ -345,7 +345,7 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
 
                 <div className="z-10 flex items-center gap-4 text-[10px] ml-12">
                     <div className="flex items-center gap-2">
-                        <MapPin className="w-3 h-3" />
+                        {/* <MapPin className="w-3 h-3" /> */}
                         <span>305, Damas Tower, Al Maktoum Road, Rigga Al Buteen, Deira, Dubai</span>
                     </div>
                 </div>

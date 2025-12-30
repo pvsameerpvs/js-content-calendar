@@ -114,12 +114,12 @@ export function TablePage({ data }: { data: any }) {
                 <div className="absolute bottom-0 left-0 border-b-[20mm] border-b-[#FF4B1F] border-r-[20mm] border-r-transparent"></div>
                 <div className="z-10 flex items-center gap-4 text-[10px] ml-12">
                     <div className="flex items-center gap-2">
-                        <MapPin className="w-3 h-3" />
+                        {/* <MapPin className="w-3 h-3" /> */}
                         <span>305, Damas Tower, Al Maktoum Road, Rigga Al Buteen, Deira, Dubai</span>
                     </div>
                 </div>
-                <div className="z-10 flex items-center gap-2 text-[10px]">
-                     <Phone className="w-3 h-3" /> 04 491 9850
+                  <div className="z-10 flex items-center gap-2 text-[10px]">
+                     04 491 9850
                 </div>
             </div>
         </div>
