@@ -20,7 +20,7 @@ export function Header() {
   };
 
   return (
-    <header className="w-full bg-white border-b border-zinc-200 px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-50">
+    <header className="w-full bg-white border-b border-zinc-200 px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-[200]">
       <div className="flex items-center gap-4">
         {pathname !== "/home" && (
            <button 
@@ -62,10 +62,10 @@ export function Header() {
         {isOpen && (
           <>
             {/* Backdrop to close */}
-            <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsOpen(false)} />
+            <div className="fixed inset-0 z-[100] cursor-default" onClick={() => setIsOpen(false)} />
             
             {/* Dropdown */}
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-zinc-100 z-[101] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                <div className="p-1">
                  <div className="px-3 py-2 border-b border-zinc-50 mb-1">
                     <p className="text-xs font-medium text-zinc-900">Signed in as</p>
