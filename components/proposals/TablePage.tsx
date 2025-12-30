@@ -119,7 +119,7 @@ export function TablePage({ data }: { data: any }) {
                     </div>
                 </div>
                 <div className="z-10 flex items-center gap-2 text-[10px]">
-                     <Phone className="w-3 h-3" /> 04 491
+                     <Phone className="w-3 h-3" /> 04 491 9850
                 </div>
             </div>
         </div>

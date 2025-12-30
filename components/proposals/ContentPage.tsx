@@ -351,7 +351,7 @@ export function ContentPage({ data, onSplit, autoFocus, onFocusConsumed, onUpdat
                 </div>
 
                 <div className="z-10 flex items-center gap-2 text-[10px]">
-                     <Phone className="w-3 h-3" /> 04 491
+                     04 491 9850
                 </div>
             </div>
         </div>

@@ -92,8 +92,8 @@ export function LastPage({ data }: { data: any }) {
                     <div className="flex-1 p-4 text-sm font-bold relative overflow-hidden">
                         <div contentEditable suppressContentEditableWarning className="relative z-10 outline-none hover:bg-zinc-50 p-1">
                             Just Search:<br/>
-                            Name: Javedmohamed shaikh<br/>
-                            Designation: Project Manager<br/>
+                            Name: Rijo Varghese<br/>
+                            Designation: CEO & Project Manager<br/>
                             Date:<br/>
                             Signature:
                         </div>
@@ -151,12 +151,11 @@ export function LastPage({ data }: { data: any }) {
                 <div className="absolute bottom-0 left-0 border-b-[20mm] border-b-[#FF4B1F] border-r-[20mm] border-r-transparent"></div>
                 <div className="z-10 flex items-center gap-4 text-[10px] ml-12">
                     <div className="flex items-center gap-2">
-                        <MapPin className="w-3 h-3" />
                         <span>305, Damas Tower, Al Maktoum Road, Rigga Al Buteen, Deira, Dubai</span>
                     </div>
                 </div>
                 <div className="z-10 flex items-center gap-2 text-[10px]">
-                     <Phone className="w-3 h-3" /> 04 491
+                     <Phone className="w-3 h-3" /> 04 491 9850
                 </div>
             </div>
 

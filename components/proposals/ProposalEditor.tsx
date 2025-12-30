@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Plus, Download, Trash2 } from "lucide-react";
 import { ProposalPageData, PageType } from "./types";
 import { toast } from "sonner";
@@ -34,7 +34,19 @@ const PageWrapper = ({ children, onDelete, pageNumber }: { children: React.React
 export function ProposalEditor() {
   const [pages, setPages] = useState<ProposalPageData[]>([]);
   const [focusTarget, setFocusTarget] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        if (pages.length > 0) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [pages]);
 
   const addPage = (type: PageType) => {
     const newPage: ProposalPageData = {
@@ -52,6 +64,14 @@ export function ProposalEditor() {
   const removePage = (id: string) => {
     setPages(pages.filter(p => p.id !== id));
     toast.info("Page removed");
+  };
+
+  const confirmDeletePage = () => {
+    if (deleteConfirmId) {
+        setPages(pages.filter(p => p.id !== deleteConfirmId));
+        toast.info("Page removed");
+        setDeleteConfirmId(null);
+    }
   };
 
   const splitPage = (sourcePageId: string, overflowContent: string, remainingContent: string) => {
@@ -159,7 +179,7 @@ export function ProposalEditor() {
                 ) : (
                 <div className="flex flex-col gap-8 items-center pb-20">
                     {pages.map((page, index) => (
-                        <PageWrapper key={page.id} onDelete={() => removePage(page.id)} pageNumber={index + 1}>
+                        <PageWrapper key={page.id} onDelete={() => setDeleteConfirmId(page.id)} pageNumber={index + 1}>
                             {page.type === "COVER" && <CoverPage data={page.content} isActive={true} />}
                             {page.type === "CONTENT" && (
                                 <ContentPage 
@@ -179,6 +199,32 @@ export function ProposalEditor() {
             )}
             </div>
         </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-96 max-w-full m-4 border border-zinc-200">
+                <h3 className="text-lg font-bold text-zinc-900 mb-2">Delete Page?</h3>
+                <p className="text-zinc-600 mb-6 text-sm">
+                    Are you sure you want to remove this page? This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-3">
+                    <button 
+                        onClick={() => setDeleteConfirmId(null)}
+                        className="px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 rounded-md transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={confirmDeletePage}
+                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors shadow-sm"
+                    >
+                        Delete Page
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 }
