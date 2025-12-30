@@ -35,7 +35,28 @@ export function ProposalEditor() {
   const [pages, setPages] = useState<ProposalPageData[]>([]);
   const [focusTarget, setFocusTarget] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Load from LocalStorage on Mount
+  useEffect(() => {
+    const saved = localStorage.getItem("proposal_pages");
+    if (saved) {
+        try {
+            setPages(JSON.parse(saved));
+            toast.success("Restored your previous work");
+        } catch (e) {
+            console.error("Failed to load saved proposal", e);
+        }
+    }
+  }, []);
+
+  // Save to LocalStorage on Change
+  useEffect(() => {
+    if (pages.length > 0) {
+        localStorage.setItem("proposal_pages", JSON.stringify(pages));
+    }
+  }, [pages]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -54,24 +75,40 @@ export function ProposalEditor() {
       type,
       content: {}, 
     };
-    setPages([...pages, newPage]);
+    setPages(prev => [...prev, newPage]);
     toast.success(`Added ${type} page`);
     
     setTimeout(() => {
         containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'smooth' });
     }, 100);
   };
+  
   const removePage = (id: string) => {
-    setPages(pages.filter(p => p.id !== id));
+    setPages(prev => {
+        const newPages = prev.filter(p => p.id !== id);
+        if (newPages.length === 0) localStorage.removeItem("proposal_pages");
+        return newPages;
+    });
     toast.info("Page removed");
   };
 
   const confirmDeletePage = () => {
     if (deleteConfirmId) {
-        setPages(pages.filter(p => p.id !== deleteConfirmId));
+        setPages(prev => {
+            const newPages = prev.filter(p => p.id !== deleteConfirmId);
+            if (newPages.length === 0) localStorage.removeItem("proposal_pages");
+            return newPages;
+        });
         toast.info("Page removed");
         setDeleteConfirmId(null);
     }
+  };
+
+  const confirmReset = () => {
+    setPages([]);
+    localStorage.removeItem("proposal_pages");
+    setResetConfirmOpen(false);
+    toast.info("Started over");
   };
 
   const splitPage = (sourcePageId: string, overflowContent: string, remainingContent: string) => {
@@ -156,7 +193,13 @@ export function ProposalEditor() {
                 </div>
             </div>
 
-            <div className="mt-auto">
+            <div className="mt-auto flex flex-col gap-2">
+                <button 
+                    onClick={() => setResetConfirmOpen(true)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-4 bg-zinc-100 text-zinc-600 font-bold rounded-xl hover:bg-zinc-200 transition-all shadow-sm active:scale-95 border border-zinc-200"
+                >
+                    <Trash2 className="w-5 h-5" /> Reset / Start Over
+                </button>
                 <button 
                     onClick={() => exportProposalPdf("proposal-container")}
                     className="w-full flex items-center justify-center gap-2 px-4 py-4 bg-zinc-900 text-white font-bold rounded-xl hover:bg-zinc-800 transition-all shadow-lg active:scale-95"
@@ -220,6 +263,33 @@ export function ProposalEditor() {
                         className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors shadow-sm"
                     >
                         Delete Page
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
+
+
+      {/* Reset Confirmation Modal */}
+      {resetConfirmOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-96 max-w-full m-4 border border-zinc-200">
+                <h3 className="text-lg font-bold text-zinc-900 mb-2">Start Over?</h3>
+                <p className="text-zinc-600 mb-6 text-sm">
+                    Are you sure you want to remove all pages and start fresh? This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-3">
+                    <button 
+                        onClick={() => setResetConfirmOpen(false)}
+                        className="px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 rounded-md transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={confirmReset}
+                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors shadow-sm"
+                    >
+                        Yes, Start Over
                     </button>
                 </div>
             </div>
