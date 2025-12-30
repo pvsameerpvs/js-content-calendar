@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { LogOut, User, ChevronDown, ArrowLeft } from "lucide-react";
+import { LogOut, User, ChevronDown, ArrowLeft, Settings } from "lucide-react";
 import { logoutAction } from "@/app/actions";
 import { toast } from "sonner";
 
@@ -71,6 +71,13 @@ export function Header() {
                     <p className="text-xs font-medium text-zinc-900">Signed in as</p>
                     <p className="text-xs text-zinc-500 truncate">justSearch</p>
                  </div>
+                 <button
+                    onClick={() => { setIsOpen(false); router.push("/settings"); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-50 rounded-lg transition-colors"
+                 >
+                    <Settings className="w-3.5 h-3.5" />
+                    Settings
+                 </button>
                  <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
